@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>智慧水产养殖 · APP</title>
+<title data-i18n-t="appTitle">智慧水产养殖 · APP</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -13,9 +13,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .app { height: 100dvh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; position: relative; background: #f0f5fe; }
 .status-bar { padding: 6px 14px 3px; display: flex; justify-content: space-between; font-size: 12px; color: #90a4ae; background: #fff; flex-shrink: 0; border-bottom: 1px solid #e4e9f2; }
 .header { background: #fff; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e4e9f2; flex-shrink: 0; }
-.header h1 { font-size: 16px; color: #0288d1; font-weight: 600; }
 .header .sub { font-size: 10px; color: #90a4ae; }
-.header .right-icons { display: flex; gap: 12px; color: #90a4ae; font-size: 16px; }
+.header .right-icons { display: flex; align-items: center; gap: 8px; color: #90a4ae; font-size: 16px; }
+.lang-btn { font-size: 11px; padding: 2px 8px; border-radius: 8px; background: #e3f2fd; color: #0288d1; cursor: pointer; font-weight: 600; user-select: none; border: none; }
 .pages { flex: 1; overflow: hidden; position: relative; }
 .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; background: #f0f5fe; opacity: 0; pointer-events: none; transition: opacity .25s; padding: 10px 10px 4px; -webkit-overflow-scrolling: touch; }
 .page.active { opacity: 1; pointer-events: auto; }
@@ -57,7 +57,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .mini-chart-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
 .mini-chart-box canvas { width: 100% !important; height: 60px !important; }
 .device-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
-.d-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; }
+.d-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.d-row:active { background: #f5faff; }
 .d-row .d-left { display: flex; align-items: center; gap: 6px; }
 .d-row .d-icon { font-size: 14px; }
 .d-row .d-info .d-name { font-size: 13px; color: #37474f; }
@@ -78,11 +79,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .tab-item .t-label { font-size: 10px; color: #90a4ae; margin-top: 2px; }
 .tab-item.active .t-icon { color: #0288d1; }
 .tab-item.active .t-label { color: #0288d1; font-weight: 600; }
-.detail-overlay { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #e4e9f2; border-radius: 14px 14px 0 0; padding: 12px 14px 16px; transition: transform .35s cubic-bezier(.4,0,.2,1); z-index: 20; max-height: 70vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,.08); }
-.detail-overlay.open { transform: translateX(-50%) translateY(0); }
-.detail-overlay .handle { width: 32px; height: 4px; background: #e4e9f2; border-radius: 2px; margin: 0 auto 8px; }
-.detail-overlay .d-title { font-size: 14px; color: #37474f; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-.detail-overlay .d-close { position: absolute; top: 10px; right: 12px; color: #90a4ae; font-size: 15px; cursor: pointer; padding: 4px; }
+.detail-overlay, .dev-overlay { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #e4e9f2; border-radius: 14px 14px 0 0; padding: 12px 14px 16px; transition: transform .35s cubic-bezier(.4,0,.2,1); z-index: 20; max-height: 70vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,.08); }
+.detail-overlay.open, .dev-overlay.open { transform: translateX(-50%) translateY(0); }
+.detail-overlay .handle, .dev-overlay .handle { width: 32px; height: 4px; background: #e4e9f2; border-radius: 2px; margin: 0 auto 8px; }
+.detail-overlay .d-title, .dev-overlay .d-title { font-size: 14px; color: #37474f; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.detail-overlay .d-close, .dev-overlay .d-close { position: absolute; top: 10px; right: 12px; color: #90a4ae; font-size: 15px; cursor: pointer; padding: 4px; }
 .detail-overlay table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .detail-overlay th { background: #f5f7fa; color: #607d8b; padding: 6px 8px; text-align: left; border-bottom: 1px solid #eceff1; font-weight: 500; }
 .detail-overlay td { padding: 5px 8px; border-bottom: 1px solid #eceff1; color: #37474f; }
@@ -175,210 +176,209 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .info-row:last-child { border-bottom: none; }
 .info-row .label { color: #90a4ae; }
 .info-row .value { color: #37474f; font-weight: 500; }
+.dev-ind-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0 10px; }
+.dev-ind-card { background: #f5faff; border: 1px solid #bbdefb; border-radius: 8px; padding: 8px; text-align: center; }
+.dev-ind-card .di-label { font-size: 10px; color: #607d8b; }
+.dev-ind-card .di-value { font-size: 20px; font-weight: 700; font-family: monospace; margin: 2px 0; }
+.dev-ind-card .di-unit { font-size: 10px; color: #90a4ae; }
+.dev-actions { display: flex; gap: 6px; margin-top: 8px; }
+.dev-actions button { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
+.dev-actions .da-on { background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; }
+.dev-actions .da-off { background: #f5f5f5; color: #607d8b; border: 1px solid #e4e9f2; }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="status-bar"><span>  11:28</span><span> 联通 5G  98%</span></div>
+  <div class="status-bar"><span>  11:28</span><span data-i18n-t="networkStatus"> 联通 5G  98%</span></div>
   <div class="header">
-    <div style="display:flex;align-items:center;gap:6px;"><img src="海南世电_默认3-1.svg" alt="WEST" style="height:22px;width:auto;display:block;flex-shrink:0;"><div><h1>世电科技</h1><div class="sub">智慧水产养殖平台</div></div></div>
-    <div class="right-icons"><span id="headerTime">--:--</span></div>
+    <div style="display:flex;align-items:center;gap:6px;"><img src="海南世电_默认3-1.svg" alt="WEST" style="height:22px;width:auto;display:block;flex-shrink:0;"><div class="sub" data-i18n-t="headerSub">智慧水产养殖平台</div></div>
+    <div class="right-icons"><span id="headerTime">--:--</span><button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button></div>
   </div>
 
   <div class="pages">
-    <!-- PAGE 0: 首页 -->
     <div class="page active" id="page-home">
       <div class="greeting">
-        <div><div class="name">张三 <small>管理员</small></div><div class="loc" id="homeLocLabel"> 1号养殖区 · 110.35°E, 20.02°N</div></div>
+        <div><div class="name"><span data-i18n-t="adminName">张三</span> <small data-i18n-t="adminRole">管理员</small></div><div class="loc" id="homeLocLabel"> 1号养殖区 · 110.35°E, 20.02°N</div></div>
         <div class="avatar">张</div>
       </div>
-      <div class="sec-title"><span>塘口选择</span></div>
+      <div class="sec-title" data-i18n-t="pondSelect"><span>塘口选择</span></div>
       <div class="loc-strip" id="homeLocStrip">
         <div class="loc-chip active" data-idx="0"><span class="dot"></span>1号塘 <span class="gps">110.35°E</span></div>
         <div class="loc-chip" data-idx="1"><span class="dot"></span>2号塘 <span class="gps">110.36°E</span></div>
         <div class="loc-chip" data-idx="2"><span class="dot"></span>3号塘 <span class="gps">110.35°E</span></div>
         <div class="loc-chip" data-idx="3"><span class="dot"></span>4号塘 <span class="gps">110.36°E</span></div>
       </div>
-      <div class="sec-title"><span>塘口分布</span></div>
+      <div class="sec-title" data-i18n-t="pondMap"><span>塘口分布</span></div>
       <div class="map-wrap"><div id="pondMap"></div></div>
-      <div class="sec-title"><span>实时水质</span> <span class="badge">点击查看详情</span></div>
+      <div class="sec-title"><span data-i18n-t="realtimeWq">实时水质</span> <span class="badge" data-i18n-t="clickDetail">点击查看详情</span></div>
       <div class="summary-grid" id="homeParamGrid"></div>
       <div class="mini-chart-box">
-        <div class="sec-title" style="margin-bottom:3px;font-size:12px;"> 溶解氧趋势 <span class="badge">近24h</span></div>
+        <div class="sec-title" style="margin-bottom:3px;font-size:12px;"><span data-i18n-t="doTrend">溶解氧趋势</span> <span class="badge" data-i18n-t="last24h">近24h</span></div>
         <canvas id="homeChart"></canvas>
       </div>
-      <div class="sec-title"><span>设备概览</span></div>
+      <div class="sec-title" data-i18n-t="deviceOverview"><span>设备概览</span></div>
       <div class="device-list" id="homeDeviceList"></div>
       <div class="quick-grid">
-        <div class="q-item" onclick="switchTab(1)"><div class="q-icon"> </div><div class="q-label">水质详情</div></div>
-        <div class="q-item" onclick="switchTab(2)"><div class="q-icon"> </div><div class="q-label">设备控制</div></div>
-        <div class="q-item" onclick="switchTab(3)"><div class="q-icon"> </div><div class="q-label">视频监控</div></div>
-        <div class="q-item" onclick="switchTab(4)"><div class="q-icon"> </div><div class="q-label">更多</div></div>
+        <div class="q-item" onclick="switchTab(1)"><div class="q-icon"> </div><div class="q-label" data-i18n-t="waterDetail">水质详情</div></div>
+        <div class="q-item" onclick="switchTab(2)"><div class="q-icon"> </div><div class="q-label" data-i18n-t="deviceControl">设备控制</div></div>
+        <div class="q-item" onclick="switchTab(3)"><div class="q-icon"> </div><div class="q-label" data-i18n-t="videoMonitor">视频监控</div></div>
+        <div class="q-item" onclick="switchTab(4)"><div class="q-icon"> </div><div class="q-label" data-i18n-t="more">更多</div></div>
       </div>
     </div>
 
-    <!-- PAGE 1: 水质监测 -->
     <div class="page" id="page-water">
-      <div class="back-bar" onclick="switchTab(0)"> 返回首页</div>
-      <div class="sec-title">塘口选择</div>
+      <div class="back-bar" onclick="switchTab(0)"><span data-i18n-t="backHome"> 返回首页</span></div>
+      <div class="sec-title" data-i18n-t="pondSelect"><span>塘口选择</span></div>
       <div class="loc-strip" id="waterLocStrip">
         <div class="loc-chip active" data-idx="0"><span class="dot"></span>1号塘</div>
         <div class="loc-chip" data-idx="1"><span class="dot"></span>2号塘</div>
         <div class="loc-chip" data-idx="2"><span class="dot"></span>3号塘</div>
         <div class="loc-chip" data-idx="3"><span class="dot"></span>4号塘</div>
       </div>
-      <div class="sec-title">水质参数</div>
+      <div class="sec-title" data-i18n-t="waterParams"><span>水质参数</span></div>
       <div class="params-full" id="waterParamList"></div>
     </div>
 
-    <!-- PAGE 2: 设备控制 -->
     <div class="page" id="page-device">
-      <div class="back-bar" onclick="switchTab(0)"> 返回首页</div>
-      <div class="sec-title">塘口选择</div>
+      <div class="back-bar" onclick="switchTab(0)"><span data-i18n-t="backHome"> 返回首页</span></div>
+      <div class="sec-title" data-i18n-t="pondSelect"><span>塘口选择</span></div>
       <div class="loc-strip" id="devLocStrip">
         <div class="loc-chip active" data-idx="0"><span class="dot"></span>1号塘</div>
         <div class="loc-chip" data-idx="1"><span class="dot"></span>2号塘</div>
         <div class="loc-chip" data-idx="2"><span class="dot"></span>3号塘</div>
         <div class="loc-chip" data-idx="3"><span class="dot"></span>4号塘</div>
       </div>
-      <div class="sec-title">设备控制面板</div>
+      <div class="sec-title" data-i18n-t="devicePanel"><span>设备控制面板</span></div>
       <div id="devicePanels"></div>
     </div>
 
-    <!-- PAGE 3: 视频监控 -->
     <div class="page" id="page-video">
-      <div class="back-bar" onclick="switchTab(0)"> 返回首页</div>
-      <div class="sec-title">实时画面</div>
+      <div class="back-bar" onclick="switchTab(0)"><span data-i18n-t="backHome"> 返回首页</span></div>
+      <div class="sec-title" data-i18n-t="liveVideo"><span>实时画面</span></div>
       <div class="v-grid">
         <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam1/400/200" alt="" loading="lazy"><div class="v-label"> 1号塘 · 全景</div></div>
         <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam2/400/200" alt="" loading="lazy"><div class="v-label"> 2号塘 · 全景</div></div>
         <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam3/400/200" alt="" loading="lazy"><div class="v-label"> 3号塘 · 东侧</div></div>
         <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam4/400/200" alt="" loading="lazy"><div class="v-label"> 3号塘 · 西侧</div></div>
       </div>
-      <div class="sec-title">摄像头列表</div>
+      <div class="sec-title" data-i18n-t="cameraList"><span>摄像头列表</span></div>
       <div class="device-list">
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-01 · 1号塘全景</div><div class="d-desc">110.3533°E, 20.0221°N</div></div></div><span class="d-state on">在线</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-02 · 2号塘全景</div><div class="d-desc">110.3561°E, 20.0248°N</div></div></div><span class="d-state on">在线</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-03 · 3号塘东侧</div><div class="d-desc">110.3502°E, 20.0193°N</div></div></div><span class="d-state on">在线</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-04 · 3号塘西侧</div><div class="d-desc">110.3490°E, 20.0185°N</div></div></div><span class="d-state off">离线</span></div>
+        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-01 · 1号塘全景</div><div class="d-desc">110.3533°E, 20.0221°N</div></div></div><span class="d-state on" data-i18n-t="online">在线</span></div>
+        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-02 · 2号塘全景</div><div class="d-desc">110.3561°E, 20.0248°N</div></div></div><span class="d-state on" data-i18n-t="online">在线</span></div>
+        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-03 · 3号塘东侧</div><div class="d-desc">110.3502°E, 20.0193°N</div></div></div><span class="d-state on" data-i18n-t="online">在线</span></div>
+        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-04 · 3号塘西侧</div><div class="d-desc">110.3490°E, 20.0185°N</div></div></div><span class="d-state off" data-i18n-t="offline">离线</span></div>
       </div>
     </div>
 
-    <!-- PAGE 4: 更多（子页面容器） -->
     <div class="page" id="page-more">
-      <!-- 子页面: 我的 -->
       <div class="sub-page active" id="sp-mine">
         <div class="sp-inner">
           <div class="profile-card">
             <div class="p-avatar">张</div>
-            <div class="pname">张三</div>
-            <div class="prole">公司管理员 · 海南世东水产养殖基地</div>
+            <div class="pname"><span data-i18n-t="adminName">张三</span></div>
+            <div class="prole" data-i18n-t="adminCompany">公司管理员 · 海南世东水产养殖基地</div>
           </div>
           <div class="menu-list">
-            <div class="menu-item" onclick="showSubPage('sp-history')"><span class="m-left"> 历史数据</span><span class="m-arrow">›</span></div>
-            <div class="menu-item" onclick="showSubPage('sp-alarm')"><span class="m-left"> 报警设置</span><span class="m-arrow">›</span></div>
-            <div class="menu-item" onclick="showSubPage('sp-binding')"><span class="m-left"> 设备绑定</span><span class="m-arrow">›</span></div>
-            <div class="menu-item" onclick="showSubPage('sp-account')"><span class="m-left"> 账号管理</span><span class="m-arrow">›</span></div>
-            <div class="menu-item"><span class="m-left"> 我的设备</span><span class="mn-badge">8</span><span class="m-arrow">›</span></div>
-            <div class="menu-item"><span class="m-left"> 系统设置</span><span class="m-arrow">›</span></div>
+            <div class="menu-item" onclick="showSubPage('sp-history')"><span class="m-left"><span data-i18n-t="historyData"> 历史数据</span></span><span class="m-arrow">›</span></div>
+            <div class="menu-item" onclick="showSubPage('sp-alarm')"><span class="m-left"><span data-i18n-t="alarmSettings"> 报警设置</span></span><span class="m-arrow">›</span></div>
+            <div class="menu-item" onclick="showSubPage('sp-binding')"><span class="m-left"><span data-i18n-t="deviceBinding"> 设备绑定</span></span><span class="m-arrow">›</span></div>
+            <div class="menu-item" onclick="showSubPage('sp-account')"><span class="m-left"><span data-i18n-t="accountMgmt"> 账号管理</span></span><span class="m-arrow">›</span></div>
+            <div class="menu-item"><span class="m-left"><span data-i18n-t="myDevices"> 我的设备</span></span><span class="mn-badge">8</span><span class="m-arrow">›</span></div>
+            <div class="menu-item"><span class="m-left"><span data-i18n-t="systemSettings"> 系统设置</span></span><span class="m-arrow">›</span></div>
           </div>
-          <div style="margin-top:12px;"><button onclick="showLogin()" style="background:transparent;border:1px solid #f44336;color:#f44336;padding:8px 0;border-radius:8px;font-size:13px;width:100%;cursor:pointer;">退出登录</button></div>
+          <div style="margin-top:12px;"><button onclick="showLogin()" style="background:transparent;border:1px solid #f44336;color:#f44336;padding:8px 0;border-radius:8px;font-size:13px;width:100%;cursor:pointer;"><span data-i18n-t="logout">退出登录</span></button></div>
         </div>
       </div>
 
-      <!-- 子页面: 历史数据 -->
       <div class="sub-page" id="sp-history">
         <div class="sp-inner">
-          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
-          <div class="sec-title">历史数据查询</div>
+          <div class="back-bar" onclick="showSubPage('sp-mine')"><span data-i18n-t="back"> 返回</span></div>
+          <div class="sec-title" data-i18n-t="historyQuery"><span>历史数据查询</span></div>
           <div class="filter-bar">
             <select id="histPond"><option>1号塘</option><option>2号塘</option><option>3号塘</option><option>4号塘</option></select>
-            <select id="histParam"><option>全部参数</option><option>溶解氧</option><option>水温</option><option>pH值</option><option>盐度</option><option>氨氮</option><option>亚硝酸盐</option></select>
+            <select id="histParam"><option data-i18n-t="allParams">全部参数</option><option>溶解氧</option><option>水温</option><option>pH值</option><option>盐度</option><option>氨氮</option><option>亚硝酸盐</option></select>
             <input type="text" value="2026-05-01" style="width:80px;">
-            <span style="color:#90a4ae;font-size:10px;">至</span>
+            <span style="color:#90a4ae;font-size:10px;" data-i18n-t="to">至</span>
             <input type="text" value="2026-05-20" style="width:80px;">
           </div>
           <div class="chart-box"><div class="chart-container"><canvas id="historyChart"></canvas></div></div>
-          <div style="font-size:11px;color:#90a4ae;margin-bottom:4px;">记录列表 <span style="color:#0288d1;">共386条</span></div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:4px;"><span data-i18n-t="recordList">记录列表</span> <span style="color:#0288d1;">386</span></div>
           <div style="overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:10px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e4e9f2;">
-              <thead><tr style="background:#f5f7fa;"><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">时间</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">塘口</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">DO</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">水温</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">pH</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">氨氮</th></tr></thead>
+              <thead><tr style="background:#f5f7fa;"><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="time">时间</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="pond2">塘口</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">DO</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="temp">水温</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">pH</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="nh3Short">氨氮</th></tr></thead>
               <tbody id="histTableBody"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- 子页面: 报警设置 -->
       <div class="sub-page" id="sp-alarm">
         <div class="sp-inner">
-          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
-          <div class="sec-title">报警设置 · 通知管理</div>
+          <div class="back-bar" onclick="showSubPage('sp-mine')"><span data-i18n-t="back"> 返回</span></div>
+          <div class="sec-title" data-i18n-t="alarmMgmt"><span>报警设置 · 通知管理</span></div>
           <div class="setting-card">
-            <div class="setting-row"><span class="s-label">短信报警</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
-            <div class="setting-row"><span class="s-label">绑定手机</span><span class="s-val">138****8888</span><span style="color:#0288d1;font-size:10px;cursor:pointer;">编辑</span></div>
-            <div class="setting-row"><span class="s-label">备用手机</span><span class="s-val">139****9999</span><span style="color:#0288d1;font-size:10px;cursor:pointer;">编辑</span></div>
-            <div class="setting-row"><span class="s-label">邮箱报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
-            <div class="setting-row"><span class="s-label">电话报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="smsAlarm">短信报警</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="bindPhone">绑定手机</span><span class="s-val">138****8888</span><span style="color:#0288d1;font-size:10px;cursor:pointer;" data-i18n-t="edit">编辑</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="backupPhone">备用手机</span><span class="s-val">139****9999</span><span style="color:#0288d1;font-size:10px;cursor:pointer;" data-i18n-t="edit">编辑</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="emailAlarm">邮箱报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="phoneAlarm">电话报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
           </div>
           <div class="setting-card">
-            <div class="setting-row"><span class="s-label">溶解氧下限</span><input class="s-input" value="4.0"> <span style="color:#90a4ae;font-size:10px;">mg/L</span></div>
-            <div class="setting-row"><span class="s-label">温度上限</span><input class="s-input" value="32"> <span style="color:#90a4ae;font-size:10px;">°C</span></div>
-            <div class="setting-row"><span class="s-label">pH 范围</span><input class="s-input" value="6.0" style="width:55px;"> – <input class="s-input" value="9.0" style="width:55px;"></div>
-            <div class="setting-row"><span class="s-label">氨氮上限</span><input class="s-input" value="0.2"> <span style="color:#90a4ae;font-size:10px;">mg/L</span></div>
-            <div class="setting-row" style="justify-content:flex-end;border:none;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:5px 16px;border-radius:5px;font-size:11px;cursor:pointer;">保存设置</button></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="doLower">溶解氧下限</span><input class="s-input" value="4.0"> <span style="color:#90a4ae;font-size:10px;">mg/L</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="tempUpper">温度上限</span><input class="s-input" value="32"> <span style="color:#90a4ae;font-size:10px;">°C</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="phRange">pH 范围</span><input class="s-input" value="6.0" style="width:55px;"> – <input class="s-input" value="9.0" style="width:55px;"></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="nh3Upper">氨氮上限</span><input class="s-input" value="0.2"> <span style="color:#90a4ae;font-size:10px;">mg/L</span></div>
+            <div class="setting-row" style="justify-content:flex-end;border:none;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:5px 16px;border-radius:5px;font-size:11px;cursor:pointer;" data-i18n-t="saveSettings">保存设置</button></div>
           </div>
-          <div class="sec-title">近期报警记录</div>
+          <div class="sec-title" data-i18n-t="recentAlarms"><span>近期报警记录</span></div>
           <div id="alarmList"></div>
         </div>
       </div>
 
-      <!-- 子页面: 设备绑定 -->
       <div class="sub-page" id="sp-binding">
         <div class="sp-inner">
-          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
-          <div class="sec-title">设备绑定设置</div>
+          <div class="back-bar" onclick="showSubPage('sp-mine')"><span data-i18n-t="back"> 返回</span></div>
+          <div class="sec-title" data-i18n-t="deviceBindingSet"><span>设备绑定设置</span></div>
           <div class="setting-card">
-            <div style="font-size:12px;color:#37474f;margin-bottom:6px;"> 网关绑定</div>
-            <div class="setting-row"><span class="s-label">网关编号</span><span class="s-val">GW-20260501-001</span><span style="color:#4caf50;font-size:10px;">已绑定</span></div>
-            <div class="setting-row"><span class="s-label">传感器点位</span><span class="s-val">1号塘 · 2号塘 · 3号塘</span><span style="color:#0288d1;font-size:10px;cursor:pointer;">编辑</span></div>
+            <div style="font-size:12px;color:#37474f;margin-bottom:6px;" data-i18n-t="gatewayBind"> 网关绑定</div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="gatewayId">网关编号</span><span class="s-val">GW-20260501-001</span><span style="color:#4caf50;font-size:10px;" data-i18n-t="bound">已绑定</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="sensorPoints">传感器点位</span><span class="s-val">1号塘 · 2号塘 · 3号塘</span><span style="color:#0288d1;font-size:10px;cursor:pointer;" data-i18n-t="edit">编辑</span></div>
           </div>
           <div class="setting-card">
-            <div style="font-size:12px;color:#37474f;margin-bottom:6px;"> 监测箱绑定</div>
-            <div class="setting-row"><span class="s-label">监测箱编号</span><span class="s-val">BOX-A01</span><span style="color:#4caf50;font-size:10px;">已绑定</span></div>
-            <div class="setting-row"><span class="s-label">采集顺序</span><span class="s-val">1号塘 → 2号塘 → 3号塘（轮巡）</span></div>
+            <div style="font-size:12px;color:#37474f;margin-bottom:6px;" data-i18n-t="monitorBox"> 监测箱绑定</div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="boxId">监测箱编号</span><span class="s-val">BOX-A01</span><span style="color:#4caf50;font-size:10px;" data-i18n-t="bound">已绑定</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="collectOrder">采集顺序</span><span class="s-val" data-i18n-t="roundRobin">1号塘 → 2号塘 → 3号塘（轮巡）</span></div>
           </div>
           <div class="setting-card" style="text-align:center;padding:16px;">
             <div style="font-size:28px;margin-bottom:4px;"> </div>
-            <div style="font-size:13px;color:#0288d1;font-weight:600;">扫码绑定新设备</div>
-            <div style="font-size:10px;color:#90a4ae;margin-top:2px;">打开摄像头扫描设备二维码</div>
+            <div style="font-size:13px;color:#0288d1;font-weight:600;" data-i18n-t="scanBind">扫码绑定新设备</div>
+            <div style="font-size:10px;color:#90a4ae;margin-top:2px;" data-i18n-t="scanHint">打开摄像头扫描设备二维码</div>
           </div>
         </div>
       </div>
 
-      <!-- 子页面: 账号管理 -->
       <div class="sub-page" id="sp-account">
         <div class="sp-inner">
-          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
-          <div class="sec-title">账号信息</div>
+          <div class="back-bar" onclick="showSubPage('sp-mine')"><span data-i18n-t="back"> 返回</span></div>
+          <div class="sec-title" data-i18n-t="accountInfo"><span>账号信息</span></div>
           <div class="setting-card">
-            <div class="setting-row"><span class="s-label">用户名</span><span class="s-val">zhangsan</span></div>
-            <div class="setting-row"><span class="s-label">角色</span><span class="s-val" style="color:#0288d1;font-weight:600;">公司管理员</span></div>
-            <div class="setting-row"><span class="s-label">剩余流量</span><span class="s-val" style="color:#0288d1;font-weight:600;">126 天</span></div>
-            <div class="setting-row"><span class="s-label">修改密码</span><span style="color:#0288d1;font-size:11px;cursor:pointer;">修改</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="username">用户名</span><span class="s-val">zhangsan</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="role">角色</span><span class="s-val" style="color:#0288d1;font-weight:600;" data-i18n-t="companyAdmin">公司管理员</span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="remainFlow">剩余流量</span><span class="s-val" style="color:#0288d1;font-weight:600;">126 <span data-i18n-t="days">天</span></span></div>
+            <div class="setting-row"><span class="s-label" data-i18n-t="changePwd">修改密码</span><span style="color:#0288d1;font-size:11px;cursor:pointer;" data-i18n-t="modify">修改</span></div>
           </div>
-          <div class="sec-title">子账号管理</div>
+          <div class="sec-title" data-i18n-t="subAccount"><span>子账号管理</span></div>
           <div style="overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:10px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e4e9f2;">
-              <thead><tr style="background:#f5f7fa;"><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">账号</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">姓名</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">角色</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">操作</th></tr></thead>
+              <thead><tr style="background:#f5f7fa;"><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="account">账号</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="name">姓名</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="role2">角色</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;" data-i18n-t="action">操作</th></tr></thead>
               <tbody>
-                <tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">lisi</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">李四</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">操作员</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;"><span style="color:#0288d1;cursor:pointer;">编辑</span> <span style="color:#f44336;cursor:pointer;">禁用</span></td></tr>
-                <tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">wangwu</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">王五</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">操作员</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;"><span style="color:#0288d1;cursor:pointer;">编辑</span> <span style="color:#f44336;cursor:pointer;">禁用</span></td></tr>
+                <tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">lisi</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">李四</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;" data-i18n-t="operator">操作员</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;"><span style="color:#0288d1;cursor:pointer;" data-i18n-t="edit">编辑</span> <span style="color:#f44336;cursor:pointer;" data-i18n-t="disable">禁用</span></td></tr>
+                <tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">wangwu</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">王五</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;" data-i18n-t="operator">操作员</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;"><span style="color:#0288d1;cursor:pointer;" data-i18n-t="edit">编辑</span> <span style="color:#f44336;cursor:pointer;" data-i18n-t="disable">禁用</span></td></tr>
               </tbody>
             </table>
           </div>
-          <div style="margin-top:6px;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:6px 16px;border-radius:5px;font-size:11px;cursor:pointer;">+ 添加子账号</button></div>
-          <div class="sec-title" style="margin-top:8px;">操作记录</div>
+          <div style="margin-top:6px;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:6px 16px;border-radius:5px;font-size:11px;cursor:pointer;"><span data-i18n-t="addSubAccount">+ 添加子账号</span></button></div>
+          <div class="sec-title" style="margin-top:8px;" data-i18n-t="operationLog"><span>操作记录</span></div>
           <div style="font-size:11px;color:#607d8b;line-height:2;background:#fff;border:1px solid #e4e9f2;border-radius:8px;padding:8px 10px;">
             <div>2026-05-20 08:15 张三 启用了 1号塘 增氧机</div>
             <div>2026-05-20 06:30 张三 查看 1号塘 水质数据</div>
@@ -388,16 +388,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
       </div>
     </div>
 
-    <!-- PAGE 5: 登录 -->
     <div class="page" id="page-login">
       <div class="login-page">
         <div class="logo-wrap"><img src="海南世电_默认3-1.svg" alt="世电科技"></div>
         <div class="logo-text">世电科技</div>
         <div class="logo-sub">Smart Aquaculture Platform</div>
-        <input type="text" placeholder="请输入账号" value="admin">
-        <input type="password" placeholder="请输入密码" value="123456">
-        <button class="login-btn" onclick="doLogin()">登 录</button>
-        <div class="links"><span>短信验证码登录</span><span>忘记密码？</span></div>
+        <input type="text" placeholder="" value="admin">
+        <input type="password" placeholder="" value="123456">
+        <button class="login-btn" onclick="doLogin()"><span data-i18n-t="login">登 录</span></button>
+        <div class="links"><span data-i18n-t="smsLogin">短信验证码登录</span><span data-i18n-t="forgotPwd">忘记密码？</span></div>
       </div>
     </div>
   </div>
@@ -405,20 +404,158 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
   <div class="detail-overlay" id="mDetail">
     <div class="handle"></div>
     <span class="d-close" onclick="closeMDetail()">✕</span>
-    <div class="d-title" id="mDetailTitle">详情</div>
+    <div class="d-title" id="mDetailTitle" data-i18n-t="detail">详情</div>
     <div style="overflow-x:auto;"><table id="mDetailTable"></table></div>
   </div>
 
+  <div class="dev-overlay" id="devOverlay">
+    <div class="handle"></div>
+    <span class="d-close" onclick="closeDevOverlay()">✕</span>
+    <div class="d-title" id="devOverlayTitle"> </div>
+    <div id="devOverlayBody"></div>
+  </div>
+
   <div class="tab-bar" id="tabBar">
-    <div class="tab-item active" onclick="switchTab(0)"><div class="t-icon"> </div><div class="t-label">首页</div></div>
-    <div class="tab-item" onclick="switchTab(1)"><div class="t-icon"> </div><div class="t-label">水质</div></div>
-    <div class="tab-item" onclick="switchTab(2)"><div class="t-icon"> </div><div class="t-label">设备</div></div>
-    <div class="tab-item" onclick="switchTab(3)"><div class="t-icon"> </div><div class="t-label">监控</div></div>
-    <div class="tab-item" onclick="switchTab(4)"><div class="t-icon"> </div><div class="t-label">更多</div></div>
+    <div class="tab-item active" onclick="switchTab(0)"><div class="t-icon"> </div><div class="t-label" data-i18n-t="tabHome">首页</div></div>
+    <div class="tab-item" onclick="switchTab(1)"><div class="t-icon"> </div><div class="t-label" data-i18n-t="tabWater">水质</div></div>
+    <div class="tab-item" onclick="switchTab(2)"><div class="t-icon"> </div><div class="t-label" data-i18n-t="tabDevice">设备</div></div>
+    <div class="tab-item" onclick="switchTab(3)"><div class="t-icon"> </div><div class="t-label" data-i18n-t="tabVideo">监控</div></div>
+    <div class="tab-item" onclick="switchTab(4)"><div class="t-icon"> </div><div class="t-label" data-i18n-t="tabMore">更多</div></div>
   </div>
 </div>
 
 <script>
+const LANG={
+  cn:{name:'EN'},
+  en:{name:'中'}
+};
+const I18N={
+  appTitle:{cn:'智慧水产养殖 · APP',en:'Smart Aquaculture · APP'},
+  headerSub:{cn:'智慧水产养殖平台',en:'Smart Aquaculture Platform'},
+  networkStatus:{cn:' 联通 5G  98%',en:' 5G  98%'},
+  adminName:{cn:'张三',en:'Zhang San'},
+  adminRole:{cn:'管理员',en:'Admin'},
+  pondSelect:{cn:'塘口选择',en:'Pond Select'},
+  pondMap:{cn:'塘口分布',en:'Pond Map'},
+  realtimeWq:{cn:'实时水质',en:'Real‑time Water'},
+  clickDetail:{cn:'点击查看详情',en:'Tap for details'},
+  doTrend:{cn:'溶解氧趋势',en:'DO Trend'},
+  last24h:{cn:'近24h',en:'Last 24h'},
+  deviceOverview:{cn:'设备概览',en:'Device Overview'},
+  waterDetail:{cn:'水质详情',en:'Water Detail'},
+  deviceControl:{cn:'设备控制',en:'Device Control'},
+  videoMonitor:{cn:'视频监控',en:'Video'},
+  more:{cn:'更多',en:'More'},
+  backHome:{cn:' 返回首页',en:' Back Home'},
+  waterParams:{cn:'水质参数',en:'Water Parameters'},
+  devicePanel:{cn:'设备控制面板',en:'Device Panel'},
+  liveVideo:{cn:'实时画面',en:'Live Video'},
+  cameraList:{cn:'摄像头列表',en:'Camera List'},
+  online:{cn:'在线',en:'Online'},
+  offline:{cn:'离线',en:'Offline'},
+  historyData:{cn:' 历史数据',en:' History'},
+  alarmSettings:{cn:' 报警设置',en:' Alarm'},
+  deviceBinding:{cn:' 设备绑定',en:' Binding'},
+  accountMgmt:{cn:' 账号管理',en:' Account'},
+  myDevices:{cn:' 我的设备',en:' My Devices'},
+  systemSettings:{cn:' 系统设置',en:' Settings'},
+  logout:{cn:'退出登录',en:'Logout'},
+  back:{cn:' 返回',en:' Back'},
+  historyQuery:{cn:'历史数据查询',en:'History Query'},
+  allParams:{cn:'全部参数',en:'All Params'},
+  to:{cn:'至',en:'to'},
+  recordList:{cn:'记录列表',en:'Records'},
+  time:{cn:'时间',en:'Time'},
+  pond2:{cn:'塘口',en:'Pond'},
+  temp:{cn:'水温',en:'Temp'},
+  nh3Short:{cn:'氨氮',en:'NH₃'},
+  alarmMgmt:{cn:'报警设置 · 通知管理',en:'Alarm & Notify'},
+  smsAlarm:{cn:'短信报警',en:'SMS Alarm'},
+  bindPhone:{cn:'绑定手机',en:'Bind Phone'},
+  backupPhone:{cn:'备用手机',en:'Backup Phone'},
+  emailAlarm:{cn:'邮箱报警',en:'Email Alarm'},
+  phoneAlarm:{cn:'电话报警',en:'Phone Alarm'},
+  doLower:{cn:'溶解氧下限',en:'DO Lower'},
+  tempUpper:{cn:'温度上限',en:'Temp Upper'},
+  phRange:{cn:'pH 范围',en:'pH Range'},
+  nh3Upper:{cn:'氨氮上限',en:'NH₃ Upper'},
+  saveSettings:{cn:'保存设置',en:'Save'},
+  recentAlarms:{cn:'近期报警记录',en:'Recent Alarms'},
+  deviceBindingSet:{cn:'设备绑定设置',en:'Binding Settings'},
+  gatewayBind:{cn:' 网关绑定',en:' Gateway'},
+  gatewayId:{cn:'网关编号',en:'Gateway ID'},
+  bound:{cn:'已绑定',en:'Bound'},
+  sensorPoints:{cn:'传感器点位',en:'Sensor Points'},
+  monitorBox:{cn:' 监测箱绑定',en:' Monitor Box'},
+  boxId:{cn:'监测箱编号',en:'Box ID'},
+  collectOrder:{cn:'采集顺序',en:'Collect Order'},
+  roundRobin:{cn:'1号塘 → 2号塘 → 3号塘（轮巡）',en:'Pond1→Pond2→Pond3 (Round)'},
+  scanBind:{cn:'扫码绑定新设备',en:'Scan to Bind'},
+  scanHint:{cn:'打开摄像头扫描设备二维码',en:'Scan device QR code'},
+  accountInfo:{cn:'账号信息',en:'Account Info'},
+  username:{cn:'用户名',en:'Username'},
+  role:{cn:'角色',en:'Role'},
+  companyAdmin:{cn:'公司管理员',en:'Company Admin'},
+  remainFlow:{cn:'剩余流量',en:'Remaining'},
+  days:{cn:'天',en:'Days'},
+  changePwd:{cn:'修改密码',en:'Change Pwd'},
+  modify:{cn:'修改',en:'Modify'},
+  subAccount:{cn:'子账号管理',en:'Sub‑Accounts'},
+  account:{cn:'账号',en:'Account'},
+  name:{cn:'姓名',en:'Name'},
+  role2:{cn:'角色',en:'Role'},
+  action:{cn:'操作',en:'Action'},
+  operator:{cn:'操作员',en:'Operator'},
+  edit:{cn:'编辑',en:'Edit'},
+  disable:{cn:'禁用',en:'Disable'},
+  addSubAccount:{cn:'+ 添加子账号',en:'+ Add Sub‑Account'},
+  operationLog:{cn:'操作记录',en:'Operation Log'},
+  login:{cn:'登 录',en:'Login'},
+  smsLogin:{cn:'短信验证码登录',en:'SMS Login'},
+  forgotPwd:{cn:'忘记密码？',en:'Forgot Pwd?'},
+  detail:{cn:'详情',en:'Details'},
+  tabHome:{cn:'首页',en:'Home'},
+  tabWater:{cn:'水质',en:'Water'},
+  tabDevice:{cn:'设备',en:'Device'},
+  tabVideo:{cn:'监控',en:'Video'},
+  tabMore:{cn:'更多',en:'More'},
+  statusRunning:{cn:'运行中',en:'Running'},
+  statusStandby:{cn:'待机',en:'Standby'},
+  statusOff:{cn:'已关闭',en:'Off'},
+  statusFault:{cn:'故障',en:'Fault'},
+  deviceRelated:{cn:' 相关指标',en:' Related Indicators'},
+  goControl:{cn:'前往控制',en:'Go Control'},
+  closeLabel:{cn:'关闭',en:'Close'},
+  collectRecord:{cn:'采集记录',en:'Collection Record'},
+  normal:{cn:'正常',en:'Normal'},
+  doLabel:{cn:'溶解氧',en:'DO'},
+  tempLabel:{cn:'水温',en:'Temp'},
+  phLabel:{cn:'pH值',en:'pH'},
+  salLabel:{cn:'盐度',en:'Salinity'},
+  nh3Label:{cn:'氨氮',en:'NH₃'},
+  nitriteLabel:{cn:'亚硝酸盐',en:'NO₂'},
+};
+let curLang='cn';
+
+function t(key){
+  return I18N[key]?I18N[key][curLang]:key;
+}
+
+function toggleLang(){
+  curLang=curLang==='cn'?'en':'cn';
+  document.getElementById('langBtn').textContent=LANG[curLang].name;
+  document.querySelectorAll('[data-i18n-t]').forEach(el=>{
+    const key=el.dataset.i18nT;
+    if(key&&I18N[key])el.textContent=I18N[key][curLang];
+  });
+  document.querySelectorAll('[data-i18n-p]').forEach(el=>{
+    const key=el.dataset.i18nP;
+    if(key&&I18N[key])el.placeholder=I18N[key][curLang];
+  });
+  if(homeChart){homeChart.data.datasets[0].label=t('doLabel');homeChart.update();}
+  if(histChart){histChart.data.datasets[0].label=t('doLabel');histChart.data.datasets[1].label=t('tempLabel');histChart.update();}
+}
+
 const LOCS=[
   {name:'1号塘',lat:20.0215,lng:110.3528,id:'POND-001'},
   {name:'2号塘',lat:20.0242,lng:110.3556,id:'POND-002'},
@@ -426,12 +563,12 @@ const LOCS=[
   {name:'4号塘',lat:20.0261,lng:110.3589,id:'POND-004'}
 ];
 const PARAMS=[
-  {key:'do',label:'溶解氧',unit:'mg/L',color:'#0288d1'},
-  {key:'temp',label:'水温',unit:'°C',color:'#ff7043'},
-  {key:'ph',label:'pH值',unit:'pH',color:'#7b1fa2'},
-  {key:'sal',label:'盐度',unit:'‰',color:'#00897b'},
-  {key:'nh3',label:'氨氮',unit:'mg/L',color:'#ef6c00'},
-  {key:'nitrite',label:'亚硝酸盐',unit:'mg/L',color:'#d32f2f'}
+  {key:'do',label:{cn:'溶解氧',en:'DO'},unit:'mg/L',color:'#0288d1'},
+  {key:'temp',label:{cn:'水温',en:'Temp'},unit:'°C',color:'#ff7043'},
+  {key:'ph',label:{cn:'pH值',en:'pH'},unit:'pH',color:'#7b1fa2'},
+  {key:'sal',label:{cn:'盐度',en:'Salinity'},unit:'‰',color:'#00897b'},
+  {key:'nh3',label:{cn:'氨氮',en:'NH₃'},unit:'mg/L',color:'#ef6c00'},
+  {key:'nitrite',label:{cn:'亚硝酸盐',en:'NO₂'},unit:'mg/L',color:'#d32f2f'}
 ];
 const DATA_LOC=[
   {do:6.82,temp:26.3,ph:7.82,sal:28.5,nh3:0.05,nitrite:0.02},
@@ -440,11 +577,28 @@ const DATA_LOC=[
   {do:6.93,temp:26.5,ph:7.88,sal:28.9,nh3:0.06,nitrite:0.02}
 ];
 const DEVICES=[
-  [{name:'增氧机 #1',status:'running'},{name:'增氧机 #2',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'standby'},{name:'照明灯',status:'off'},{name:'温控设备',status:'fault'},{name:'溶氧传感器',status:'running'},{name:'pH传感器',status:'running'}],
-  [{name:'增氧机 #1',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'running'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'氨氮传感器',status:'running'},{name:'浊度传感器',status:'running'}],
-  [{name:'增氧机 #1',status:'running'},{name:'增氧机 #2',status:'standby'},{name:'水泵',status:'running'},{name:'投料机',status:'off'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'ORP传感器',status:'running'},{name:'盐度传感器',status:'running'}],
-  [{name:'增氧机 #1',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'running'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'TDS传感器',status:'running'},{name:'水位传感器',status:'running'}]
+  [{name:'增氧机',status:'running'},{name:'增氧机 #2',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'standby'},{name:'照明灯',status:'off'},{name:'温控设备',status:'fault'},{name:'溶氧传感器',status:'running'},{name:'pH传感器',status:'running'}],
+  [{name:'增氧机',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'running'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'氨氮传感器',status:'running'},{name:'浊度传感器',status:'running'}],
+  [{name:'增氧机',status:'running'},{name:'增氧机 #2',status:'standby'},{name:'水泵',status:'running'},{name:'投料机',status:'off'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'ORP传感器',status:'running'},{name:'盐度传感器',status:'running'}],
+  [{name:'增氧机',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'running'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'TDS传感器',status:'running'},{name:'水位传感器',status:'running'}]
 ];
+
+const DEVICE_PARAMS_MAP={
+  '增氧机':['do','temp'],
+  '水泵':['ph','sal','nitrite'],
+  '投料机':['temp'],
+  '照明灯':[],
+  '温控设备':['temp'],
+  '溶氧传感器':['do'],
+  'pH传感器':['ph'],
+  '氨氮传感器':['nh3'],
+  '浊度传感器':['ph','sal'],
+  '盐度传感器':['sal'],
+  'ORP传感器':['ph'],
+  'TDS传感器':['sal'],
+  '水位传感器':[]
+};
+
 const TIMES=['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
 const DO_DATA=[6.35,6.08,6.21,6.55,6.82,7.00,6.88,6.72,6.95,7.10,6.80,6.50];
 
@@ -463,25 +617,50 @@ function buildHomeParams(loc){
   const g=document.getElementById('homeParamGrid');
   g.innerHTML=PARAMS.map(p=>{
     const v=DATA_LOC[loc][p.key];
-    return `<div class="s-card ${p.key}" onclick="showDetail('${p.key}')"><div class="s-icon">${SVG[p.key]}</div><div class="s-label">${p.label}</div><div class="s-value">${v}</div><div class="s-unit">${p.unit}</div><div class="s-status">正常</div></div>`;
+    const label=t(p.key==='do'?'doLabel':p.key==='temp'?'tempLabel':p.key==='ph'?'phLabel':p.key==='sal'?'salLabel':p.key==='nh3'?'nh3Label':'nitriteLabel');
+    return `<div class="s-card ${p.key}" onclick="showDetail('${p.key}')"><div class="s-icon">${SVG[p.key]}</div><div class="s-label">${label}</div><div class="s-value">${v}</div><div class="s-unit">${p.unit}</div><div class="s-status">${t('normal')}</div></div>`;
   }).join('');
 }
 
 function buildHomeDevices(loc){
   const c=document.getElementById('homeDeviceList');
-  c.innerHTML=DEVICES[loc].slice(0,5).map(d=>{
-    const label={running:'运行中',standby:'待机',off:'已关闭',fault:'故障'}[d.status]||d.status;
-    return `<div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">${d.name}</div><div class="d-desc">${LOCS[loc].name}</div></div></div><span class="d-state ${d.status}">${label}</span></div>`;
+  c.innerHTML=DEVICES[loc].slice(0,5).map((d,i)=>{
+    const stLabel={running:t('statusRunning'),standby:t('statusStandby'),off:t('statusOff'),fault:t('statusFault')}[d.status]||d.status;
+    return `<div class="d-row" onclick="showDeviceOverlay(${i})"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">${d.name}</div><div class="d-desc">${LOCS[loc].name}</div></div></div><span class="d-state ${d.status}">${stLabel}</span></div>`;
   }).join('');
 }
 
+function showDeviceOverlay(devIdx){
+  const dev=DEVICES[curLoc][devIdx];
+  const stLabel={running:t('statusRunning'),standby:t('statusStandby'),off:t('statusOff'),fault:t('statusFault')}[dev.status]||dev.status;
+  const relatedKeys=DEVICE_PARAMS_MAP[dev.name]||[];
+  document.getElementById('devOverlayTitle').innerHTML=` ${dev.name} <span class="cp-status ${dev.status}">${stLabel}</span>`;
+  let body='';
+  if(relatedKeys.length>0){
+    body+=`<div style="font-size:12px;color:#546e7a;margin:4px 0 2px;">${t('deviceRelated')}</div><div class="dev-ind-grid">`;
+    relatedKeys.forEach(k=>{
+      const p=PARAMS.find(x=>x.key===k);
+      if(!p)return;
+      const label=t(k==='do'?'doLabel':k==='temp'?'tempLabel':k==='ph'?'phLabel':k==='sal'?'salLabel':k==='nh3'?'nh3Label':'nitriteLabel');
+      body+=`<div class="dev-ind-card" style="border-color:${p.color}"><div class="di-label" style="color:${p.color}">${label}</div><div class="di-value" style="color:${p.color}">${DATA_LOC[curLoc][k]}</div><div class="di-unit">${p.unit}</div></div>`;
+    });
+    body+=`</div>`;
+  }else{
+    body+=`<div style="font-size:12px;color:#90a4ae;text-align:center;padding:8px 0;">—</div>`;
+  }
+  body+=`<div class="dev-actions"><button class="da-on" onclick="switchTab(2);closeDevOverlay();">${t('goControl')}</button><button class="da-off" onclick="closeDevOverlay()">${t('closeLabel')}</button></div>`;
+  document.getElementById('devOverlayBody').innerHTML=body;
+  document.getElementById('devOverlay').classList.add('open');
+}
+function closeDevOverlay(){document.getElementById('devOverlay').classList.remove('open');}
+
 function buildDevicePanels(loc){
   document.getElementById('devicePanels').innerHTML=`
-    <div class="ctrl-panel"><div class="cp-title"> 增氧机 <span class="cp-status on" id="devAeratorStatus">运行中</span></div><div class="cp-row"><label>转速</label><input type="text" value="1200" style="width:60px;"><span style="color:#90a4ae;">rpm</span></div><div class="cp-row"><label>定时</label><input type="text" value="06:00-18:00" style="width:90px;"></div><div class="cp-row"><label>操作</label><button class="cp-btn-start">启动</button><button class="cp-btn-stop">停止</button></div></div>
-    <div class="ctrl-panel"><div class="cp-title"> 水泵 <span class="cp-status on" id="devPumpStatus">进水模式</span></div><div class="cp-row"><label>模式</label><select><option>进水</option><option>排水</option><option>循环</option></select></div><div class="cp-row"><label>操作</label><button class="cp-btn-ok">执行</button></div></div>
-    <div class="ctrl-panel"><div class="cp-title"> 投料机 <span class="cp-status off" id="devFeederStatus">已停机</span></div><div class="cp-row"><label>投喂量</label><input type="text" value="50" style="width:60px;"><span style="color:#90a4ae;">kg</span></div><div class="cp-row"><label>间隔</label><input type="text" value="4" style="width:40px;"><span style="color:#90a4ae;">h</span></div><div class="cp-row"><label>操作</label><button class="cp-btn-start">投料</button><button class="cp-btn-stop">停止</button></div></div>
-    <div class="ctrl-panel"><div class="cp-title"> 照明灯 <span class="cp-status off" id="devLightStatus">已关闭</span></div><div class="cp-row"><label>定时</label><input type="text" value="18:00-06:00" style="width:90px;"></div><div class="cp-row"><label>操作</label><button class="cp-btn-start">开启</button><button class="cp-btn-stop">关闭</button></div></div>
-    <div class="ctrl-panel"><div class="cp-title"> 温度调节 <span class="cp-status on" id="devTempStatus">恒温 26°C</span></div><div class="cp-row"><label>目标</label><input type="text" value="26" style="width:50px;"><span style="color:#90a4ae;">°C</span></div><div class="cp-row"><label>操作</label><button class="cp-btn-ok">设定</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 增氧机 <span class="cp-status on">${t('statusRunning')}</span></div><div class="cp-row"><label>RPM</label><input type="text" value="1200" style="width:60px;"><span style="color:#90a4ae;">rpm</span></div><div class="cp-row"><label>${t('edit')}</label><input type="text" value="06:00-18:00" style="width:90px;"></div><div class="cp-row"><label>Ops</label><button class="cp-btn-start">${t('statusRunning')}</button><button class="cp-btn-stop">${t('statusOff')}</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 水泵 <span class="cp-status on">${t('statusRunning')}</span></div><div class="cp-row"><label>Mode</label><select><option>${t('statusRunning')}</option><option>${t('statusOff')}</option></select></div><div class="cp-row"><label>Ops</label><button class="cp-btn-ok">${t('statusRunning')}</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 投料机 <span class="cp-status off">${t('statusOff')}</span></div><div class="cp-row"><label>kg</label><input type="text" value="50" style="width:60px;"><span style="color:#90a4ae;">kg</span></div><div class="cp-row"><label>h</label><input type="text" value="4" style="width:40px;"><span style="color:#90a4ae;">h</span></div><div class="cp-row"><label>Ops</label><button class="cp-btn-start">${t('statusRunning')}</button><button class="cp-btn-stop">${t('statusOff')}</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 照明灯 <span class="cp-status off">${t('statusOff')}</span></div><div class="cp-row"><label>Timer</label><input type="text" value="18:00-06:00" style="width:90px;"></div><div class="cp-row"><label>Ops</label><button class="cp-btn-start">${t('statusRunning')}</button><button class="cp-btn-stop">${t('statusOff')}</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 温度调节 <span class="cp-status on">${t('statusRunning')}</span></div><div class="cp-row"><label>°C</label><input type="text" value="26" style="width:50px;"></div><div class="cp-row"><label>Ops</label><button class="cp-btn-ok">Set</button></div></div>
   `;
   document.getElementById('homeLocLabel').textContent=` ${LOCS[loc].name} · ${LOCS[loc].lng}°E, ${LOCS[loc].lat}°N`;
 }
@@ -528,12 +707,12 @@ document.querySelectorAll('#devLocStrip .loc-chip').forEach(c=>c.addEventListene
 
 function showDetail(key){
   const p=PARAMS.find(x=>x.key===key);if(!p)return;
-  document.getElementById('mDetailTitle').innerHTML=` ${p.label} · ${LOCS[curLoc].name} 采集记录`;
+  document.getElementById('mDetailTitle').innerHTML=` ${p.label[curLang]} · ${LOCS[curLoc].name} ${t('collectRecord')}`;
   document.getElementById('mDetailTable').innerHTML=
-    `<thead><tr><th>时间</th><th>数值</th><th>单位</th><th>位置</th><th>状态</th></tr></thead><tbody>`+
+    `<thead><tr><th>${t('time')}</th><th>${t('detail')}</th><th>${t('pond2')}</th><th>${t('normal')}</th></tr></thead><tbody>`+
     TIMES.map((t,i)=>{
       const v=key==='do'?DO_DATA[i]:(4+Math.random()*4).toFixed(2);
-      return `<tr><td>${t}</td><td>${v}</td><td>${p.unit}</td><td>${LOCS[curLoc].name}</td><td><span class="tag ok">正常</span></td></tr>`;
+      return `<tr><td>${t}</td><td>${v} ${p.unit}</td><td>${LOCS[curLoc].name}</td><td><span class="tag ok">${t('normal')}</span></td></tr>`;
     }).join('')+`</tbody>`;
   document.getElementById('mDetail').classList.add('open');
 }
@@ -542,7 +721,7 @@ function closeMDetail(){document.getElementById('mDetail').classList.remove('ope
 function buildWaterParams(loc){
   const l=loc!==undefined?loc:curLoc;
   document.getElementById('waterParamList').innerHTML=PARAMS.map(p=>
-    `<div class="param-row" onclick="showDetail('${p.key}')"><div class="p-left"><div class="p-dot" style="background:${p.color}"></div><div><div class="p-name">${p.label}</div><div class="p-detail">${LOCS[l].name} · ${p.unit}</div></div></div><div class="p-value" style="color:${p.color}">${DATA_LOC[l][p.key]}</div></div>`
+    `<div class="param-row" onclick="showDetail('${p.key}')"><div class="p-left"><div class="p-dot" style="background:${p.color}"></div><div><div class="p-name">${p.label[curLang]}</div><div class="p-detail">${LOCS[l].name} · ${p.unit}</div></div></div><div class="p-value" style="color:${p.color}">${DATA_LOC[l][p.key]}</div></div>`
   ).join('');
 }
 
@@ -573,16 +752,16 @@ function buildHistTable(){
   b.innerHTML='';
   for(let i=0;i<8;i++){
     const h=6-i*2;
-    b.innerHTML+=`<tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">05-${String(20-i).padStart(2,'0')} ${String(h).padStart(2,'0')}:00</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">1号塘</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(6+Math.random()).toFixed(2)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(25+Math.random()*3).toFixed(1)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(7.5+Math.random()*0.5).toFixed(2)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(Math.random()*0.1).toFixed(2)}</td></tr>`;
+    b.innerHTML+=`<tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">05-${String(20-i).padStart(2,'0')} ${String(h).padStart(2,'0')}:00</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${LOCS[0].name}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(6+Math.random()).toFixed(2)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(25+Math.random()*3).toFixed(1)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(7.5+Math.random()*0.5).toFixed(2)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(Math.random()*0.1).toFixed(2)}</td></tr>`;
   }
 }
 
 function buildAlarmList(){
   const alarms=[
-    {name:'1号塘 · 溶解氧偏低',desc:'2026-05-19 03:15 · 值:3.85 mg/L · 已启动增氧机',badge:'recovered',label:'已处理'},
-    {name:'2号塘 · 温度过高',desc:'2026-05-18 14:30 · 值:33.2 °C · 已开启降温',badge:'done',label:'已恢复'},
-    {name:'1号塘 · 打氧机故障',desc:'2026-05-18 06:12 · 设备异常停机',badge:'pending',label:'未处理'},
-    {name:'3号塘 · 氨氮超标',desc:'2026-05-17 22:00 · 值:0.35 mg/L',badge:'done',label:'已恢复'}
+    {name:'1号塘 · 溶解氧偏低',desc:'2026-05-19 03:15 · 3.85 mg/L · ',badge:'recovered',label:'Resolved'},
+    {name:'2号塘 · 温度过高',desc:'2026-05-18 14:30 · 33.2 °C',badge:'done',label:'Recovered'},
+    {name:'1号塘 · 打氧机故障',desc:'2026-05-18 06:12 · ',badge:'pending',label:'Pending'},
+    {name:'3号塘 · 氨氮超标',desc:'2026-05-17 22:00 · 0.35 mg/L',badge:'done',label:'Recovered'}
   ];
   document.getElementById('alarmList').innerHTML=alarms.map(a=>
     `<div class="alarm-item"><div class="a-left"><span class="a-icon"> </span><div class="a-info"><div class="a-name">${a.name}</div><div class="a-desc">${a.desc}</div></div></div><span class="a-badge ${a.badge}">${a.label}</span></div>`
@@ -597,13 +776,13 @@ function updateClock(){
 
 homeChart=new Chart(document.getElementById('homeChart').getContext('2d'),{
   type:'line',
-  data:{labels:TIMES,datasets:[{label:'溶解氧',data:DO_DATA,borderColor:'#0288d1',backgroundColor:'rgba(2,136,209,0.04)',fill:true,tension:.3,pointRadius:0}]},
+  data:{labels:TIMES,datasets:[{label:t('doLabel'),data:DO_DATA,borderColor:'#0288d1',backgroundColor:'rgba(2,136,209,0.04)',fill:true,tension:.3,pointRadius:0}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}},y:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}}}}
 });
 
 histChart=new Chart(document.getElementById('historyChart').getContext('2d'),{
   type:'line',
-  data:{labels:TIMES,datasets:[{label:'溶解氧',data:DO_DATA,borderColor:'#0288d1',backgroundColor:'rgba(2,136,209,0.04)',fill:true,tension:.3,pointRadius:0},{label:'水温',data:[25.6,25.3,25.5,25.8,26.3,26.8,26.5,26.2,26.6,26.9,26.4,26.0],borderColor:'#ff7043',backgroundColor:'rgba(255,112,67,0.04)',fill:true,tension:.3,pointRadius:0}]},
+  data:{labels:TIMES,datasets:[{label:t('doLabel'),data:DO_DATA,borderColor:'#0288d1',backgroundColor:'rgba(2,136,209,0.04)',fill:true,tension:.3,pointRadius:0},{label:t('tempLabel'),data:[25.6,25.3,25.5,25.8,26.3,26.8,26.5,26.2,26.6,26.9,26.4,26.0],borderColor:'#ff7043',backgroundColor:'rgba(255,112,67,0.04)',fill:true,tension:.3,pointRadius:0}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9}}}},scales:{x:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}},y:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}}}}
 });
 
@@ -613,6 +792,7 @@ initMap();
 refreshAllLoc(0);
 buildWaterParams(0);
 buildAlarmList();
+toggleLang();
 </script>
 </body>
 </html>
