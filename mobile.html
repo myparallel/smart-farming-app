@@ -8,16 +8,16 @@
 </script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f5fe; color: #1a2a3a; overflow: hidden; height: 100vh; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 16px; background: #f0f5fe; color: #1a2a3a; overflow: hidden; height: 100vh; }
 
   .app { height: 100vh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; position: relative; background: #f0f5fe; }
 
-  .status-bar { padding: 8px 16px 4px; display: flex; justify-content: space-between; font-size: 11px; color: #90a4ae; background: #fff; flex-shrink: 0; border-bottom: 1px solid #e4e9f2; }
+  .status-bar { padding: 8px 16px 4px; display: flex; justify-content: space-between; font-size: 13px; color: #90a4ae; background: #fff; flex-shrink: 0; border-bottom: 1px solid #e4e9f2; }
 
   .header { background: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e4e9f2; flex-shrink: 0; }
-  .header h1 { font-size: 16px; color: #0288d1; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .header h1 { font-size: 18px; color: #0288d1; font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .header h1 .badge { width: 20px; height: 20px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; flex-shrink: 0; }
-  .header .sub { font-size: 10px; color: #90a4ae; }
+  .header .sub { font-size: 12px; color: #90a4ae; }
   .header .right-icons { display: flex; gap: 14px; font-size: 18px; color: #90a4ae; }
 
   .pages { flex: 1; overflow: hidden; position: relative; }
@@ -29,31 +29,31 @@
   .hero-img { width: 100%; height: 80px; object-fit: cover; border-radius: 10px; display: block; margin-bottom: 10px; border: 1px solid #e4e9f2; }
 
   .greeting { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-  .greeting .name { font-size: 16px; font-weight: 600; color: #1a2a3a; }
+  .greeting .name { font-size: 18px; font-weight: 600; color: #1a2a3a; }
   .greeting .name small { font-weight: 400; color: #90a4ae; font-size: 12px; }
-  .greeting .loc { font-size: 10px; color: #90a4ae; margin-top: 1px; }
+  .greeting .loc { font-size: 12px; color: #90a4ae; margin-top: 1px; }
   .greeting .avatar { width: 32px; height: 32px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
 
-  .sec-title { font-size: 12px; font-weight: 600; color: #546e7a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .sec-title { font-size: 14px; font-weight: 600; color: #546e7a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 
   .loc-strip { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; }
   .loc-strip::-webkit-scrollbar { height: 2px; }
   .loc-strip::-webkit-scrollbar-thumb { background: #cfd8dc; border-radius: 1px; }
-  .loc-chip { display: flex; align-items: center; gap: 4px; padding: 5px 10px; background: #fff; border: 1px solid #e4e9f2; border-radius: 14px; font-size: 11px; color: #607d8b; white-space: nowrap; cursor: pointer; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,.02); }
+  .loc-chip { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: #fff; border: 1px solid #e4e9f2; border-radius: 14px; font-size: 13px; color: #607d8b; white-space: nowrap; cursor: pointer; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,.02); }
   .loc-chip .dot { width: 5px; height: 5px; border-radius: 50%; background: #cfd8dc; flex-shrink: 0; }
   .loc-chip.active { background: #e3f2fd; border-color: #29b6f6; color: #01579b; }
   .loc-chip.active .dot { background: #29b6f6; box-shadow: 0 0 4px rgba(41,182,246,.4); }
-  .loc-chip .gps { font-size: 8px; color: #90a4ae; font-family: monospace; }
+  .loc-chip .gps { font-size: 10px; color: #90a4ae; font-family: monospace; }
 
   .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
   .s-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
   .s-card:active { transform: scale(.97); }
   .s-card .s-icon { height: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
   .s-card .s-icon svg { width: 18px; height: 18px; }
-  .s-card .s-label { font-size: 10px; color: #90a4ae; }
-  .s-card .s-value { font-size: 17px; font-weight: 700; font-family: monospace; margin: 1px 0; }
-  .s-card .s-unit { font-size: 9px; color: #90a4ae; }
-  .s-card .s-status { font-size: 9px; margin-top: 1px; color: #4caf50; }
+.s-card .s-label { font-size: 12px; color: #90a4ae; }
+.s-card .s-value { font-size: 20px; font-weight: 700; font-family: monospace; margin: 2px 0; }
+.s-card .s-unit { font-size: 11px; color: #90a4ae; }
+.s-card .s-status { font-size: 11px; margin-top: 2px; color: #4caf50; }
   .s-card.do .s-value { color: #0288d1; } .s-card.do svg * { stroke: #0288d1; fill: none; }
   .s-card.temp .s-value { color: #ff7043; } .s-card.temp svg * { stroke: #ff7043; fill: none; }
   .s-card.ph .s-value { color: #7b1fa2; } .s-card.ph svg * { stroke: #7b1fa2; fill: none; }
@@ -63,9 +63,9 @@
   .extra-item { flex: 1; background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
   .extra-item .e-icon { height: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 1px; }
   .extra-item .e-icon svg { width: 16px; height: 16px; }
-  .extra-item .e-label { font-size: 9px; color: #90a4ae; }
-  .extra-item .e-value { font-size: 14px; font-weight: 700; font-family: monospace; margin: 1px 0; }
-  .extra-item .e-unit { font-size: 9px; color: #90a4ae; }
+.extra-item .e-label { font-size: 11px; color: #90a4ae; }
+.extra-item .e-value { font-size: 16px; font-weight: 700; font-family: monospace; margin: 2px 0; }
+.extra-item .e-unit { font-size: 11px; color: #90a4ae; }
   .extra-item.nh3 .e-value { color: #ef6c00; } .extra-item.nh3 svg * { stroke: #ef6c00; fill: none; }
   .extra-item.nitrite .e-value { color: #d32f2f; } .extra-item.nitrite svg * { stroke: #d32f2f; fill: none; }
 
@@ -76,34 +76,34 @@
   .d-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0,0,0,.02); }
   .d-row .d-left { display: flex; align-items: center; gap: 8px; }
   .d-row .d-icon { font-size: 16px; }
-  .d-row .d-info .d-name { font-size: 12px; color: #37474f; }
-  .d-row .d-info .d-desc { font-size: 10px; color: #90a4ae; }
-  .d-row .d-state { font-size: 10px; padding: 2px 10px; border-radius: 10px; }
+.d-row .d-info .d-name { font-size: 14px; color: #37474f; }
+.d-row .d-info .d-desc { font-size: 12px; color: #90a4ae; }
+.d-row .d-state { font-size: 12px; padding: 3px 12px; border-radius: 10px; }
   .d-row .d-state.on { background: #e8f5e9; color: #4caf50; }
   .d-row .d-state.off { background: #f5f5f5; color: #9e9e9e; }
 
   .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
   .q-item { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; transition: .2s; box-shadow: 0 1px 2px rgba(0,0,0,.02); }
   .q-item:active { transform: scale(.96); }
-  .q-item .q-icon { font-size: 18px; }
-  .q-item .q-label { font-size: 10px; color: #607d8b; margin-top: 2px; }
+  .q-item .q-icon { font-size: 22px; }
+  .q-item .q-label { font-size: 12px; color: #607d8b; margin-top: 2px; }
 
-  .tab-bar { display: flex; background: #fff; border-top: 1px solid #e4e9f2; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 4px); }
-  .tab-item { flex: 1; text-align: center; padding: 6px 0 4px; cursor: pointer; transition: .2s; }
-  .tab-item .t-icon { font-size: 18px; color: #90a4ae; }
-  .tab-item .t-label { font-size: 9px; color: #90a4ae; margin-top: 1px; }
+.tab-bar { display: flex; background: #fff; border-top: 1px solid #e4e9f2; flex-shrink: 0; padding: 6px 0 env(safe-area-inset-bottom, 6px); }
+.tab-item { flex: 1; text-align: center; padding: 10px 0 8px; cursor: pointer; transition: .2s; }
+.tab-item .t-icon { font-size: 22px; color: #90a4ae; }
+.tab-item .t-label { font-size: 11px; color: #90a4ae; margin-top: 2px; }
   .tab-item.active .t-icon { color: #0288d1; }
   .tab-item.active .t-label { color: #0288d1; font-weight: 600; }
 
   .detail-overlay { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #e4e9f2; border-radius: 14px 14px 0 0; padding: 14px 16px 20px; transition: transform .35s cubic-bezier(.4,0,.2,1); z-index: 20; box-shadow: 0 -4px 30px rgba(0,0,0,.08); }
   .detail-overlay.open { transform: translateX(-50%) translateY(0); }
   .detail-overlay .handle { width: 36px; height: 4px; background: #e4e9f2; border-radius: 2px; margin: 0 auto 10px; }
-  .detail-overlay .d-title { font-size: 13px; color: #37474f; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .detail-overlay .d-title { font-size: 15px; color: #37474f; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
   .detail-overlay .d-close { position: absolute; top: 12px; right: 14px; color: #90a4ae; font-size: 16px; cursor: pointer; padding: 4px; }
   .detail-overlay table { width: 100%; border-collapse: collapse; font-size: 11px; }
-  .detail-overlay th { background: #f5f7fa; color: #607d8b; padding: 6px 8px; text-align: left; border-bottom: 1px solid #eceff1; font-weight: 500; }
-  .detail-overlay td { padding: 5px 8px; border-bottom: 1px solid #eceff1; color: #37474f; }
-  .detail-overlay .tag { font-size: 9px; padding: 1px 6px; border-radius: 3px; }
+.detail-overlay th { background: #f5f7fa; color: #607d8b; padding: 8px 10px; text-align: left; border-bottom: 1px solid #eceff1; font-weight: 500; }
+.detail-overlay td { padding: 7px 10px; border-bottom: 1px solid #eceff1; color: #37474f; }
+  .detail-overlay .tag { font-size: 11px; padding: 2px 8px; border-radius: 3px; }
   .detail-overlay .tag.ok { background: #e8f5e9; color: #4caf50; }
   .detail-overlay .tag.warn { background: #fff3e0; color: #ff9800; }
 
@@ -112,28 +112,28 @@
   .param-row:active { background: #f5faff; }
   .param-row .p-left { display: flex; align-items: center; gap: 8px; }
   .param-row .p-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .param-row .p-name { font-size: 13px; color: #37474f; }
-  .param-row .p-detail { font-size: 10px; color: #90a4ae; margin-top: 1px; }
-  .param-row .p-value { font-size: 17px; font-weight: 700; font-family: monospace; }
+.param-row .p-name { font-size: 15px; color: #37474f; }
+.param-row .p-detail { font-size: 12px; color: #90a4ae; margin-top: 1px; }
+.param-row .p-value { font-size: 19px; font-weight: 700; font-family: monospace; }
 
   .login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 40px 24px; text-align: center; }
   .login-page .logo-img { width: 60px; height: 60px; border-radius: 14px; margin-bottom: 6px; object-fit: cover; border: 2px solid #e4e9f2; }
   .login-page .logo-text { font-size: 20px; font-weight: 700; color: #0288d1; letter-spacing: 3px; }
-  .login-page .logo-sub { font-size: 11px; color: #90a4ae; margin-bottom: 24px; }
-  .login-page input { width: 100%; background: #fff; border: 1px solid #e4e9f2; color: #37474f; padding: 11px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; outline: none; }
+  .login-page .logo-sub { font-size: 13px; color: #90a4ae; margin-bottom: 24px; }
+  .login-page input { width: 100%; background: #fff; border: 1px solid #e4e9f2; color: #37474f; padding: 13px 16px; border-radius: 8px; font-size: 15px; margin-bottom: 10px; outline: none; }
   .login-page input:focus { border-color: #29b6f6; }
-  .login-page .login-btn { width: 100%; padding: 11px; background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .login-page .login-btn { width: 100%; padding: 13px; background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
   .login-page .links { margin-top: 12px; display: flex; justify-content: space-between; width: 100%; font-size: 11px; color: #90a4ae; }
 
   .profile-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
   .profile-card .p-avatar { width: 42px; height: 42px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; margin: 0 auto 6px; }
-  .profile-card .pname { font-size: 15px; font-weight: 600; color: #1a2a3a; }
-  .profile-card .prole { font-size: 11px; color: #90a4ae; }
+.profile-card .pname { font-size: 17px; font-weight: 600; color: #1a2a3a; }
+.profile-card .prole { font-size: 13px; color: #90a4ae; }
   .menu-list { display: flex; flex-direction: column; gap: 1px; background: #e4e9f2; border-radius: 10px; overflow: hidden; }
-  .menu-item { background: #fff; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #37474f; }
+  .menu-item { background: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: #37474f; }
   .menu-item .m-left { display: flex; align-items: center; gap: 8px; }
   .menu-item .m-arrow { color: #90a4ae; font-size: 13px; }
-  .badge { background: #e3f2fd; color: #0288d1; font-size: 9px; padding: 1px 6px; border-radius: 3px; }
+  .badge { background: #e3f2fd; color: #0288d1; font-size: 11px; padding: 2px 8px; border-radius: 3px; }
 </style>
 </head>
 <body>
@@ -147,7 +147,7 @@
   <div class="pages">
     <!-- PAGE 0: 首页 -->
     <div class="page active" id="page-home">
-      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Aufse%C3%9Ftal%20Fischzucht%20Luftaufnahme-20220227-RM-161021.jpg?width=600" alt="渔场" loading="lazy">
+      <img class="hero-img" src="https://picsum.photos/seed/aqua-farm/800/400" alt="渔场" loading="lazy">
       <div class="greeting">
         <div><div class="name">张三 <small>管理员</small></div><div class="loc"> 1号养殖区 · 110.35°E, 20.02°N</div></div>
         <div class="avatar">张</div>
@@ -186,14 +186,14 @@
 
     <!-- PAGE 1: 水质 -->
     <div class="page" id="page-water">
-      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Aquaculture%206.jpg?width=600" alt="" loading="lazy">
+      <img class="hero-img" src="https://picsum.photos/seed/aqua-water/800/400" alt="" loading="lazy">
       <div class="sec-title"> 水质参数 · 实时数据</div>
       <div class="params-full" id="mWaterParams"></div>
     </div>
 
     <!-- PAGE 2: 设备 -->
     <div class="page" id="page-device">
-      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Paddle%20aerator%20(51252351275).jpg?width=600" alt="" loading="lazy">
+      <img class="hero-img" src="https://picsum.photos/seed/aqua-equip/800/400" alt="" loading="lazy">
       <div class="sec-title"> 塘口选择</div>
       <div class="loc-strip"><div class="loc-chip active"><span class="dot"></span>1号塘</div><div class="loc-chip"><span class="dot"></span>2号塘</div><div class="loc-chip"><span class="dot"></span>3号塘</div></div>
       <div class="sec-title"> 设备控制</div>
@@ -207,16 +207,16 @@
 
     <!-- PAGE 3: 监控 -->
     <div class="page" id="page-video">
-      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Aquaculture%201.jpg?width=600" alt="" loading="lazy">
+      <img class="hero-img" src="https://picsum.photos/seed/aqua-camera/800/400" alt="" loading="lazy">
       <div class="sec-title"> 监控画面</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
         <div style="background:#fff;border:1px solid #e4e9f2;border-radius:8px;overflow:hidden;">
-          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Aeration%20systems%20in%20an%20Aqua%20pond%20near%20Eluru.jpg?width=400" style="width:100%;height:80px;object-fit:cover;display:block;" alt="" loading="lazy">
-          <div style="padding:4px 8px;font-size:10px;color:#90a4ae;">1号塘 · 全景</div>
+          <img src="https://picsum.photos/seed/aqua-cam1/400/200" style="width:100%;height:80px;object-fit:cover;display:block;" alt="" loading="lazy">
+          <div style="padding:4px 8px;font-size:12px;color:#90a4ae;">1号塘 · 全景</div>
         </div>
         <div style="background:#fff;border:1px solid #e4e9f2;border-radius:8px;overflow:hidden;">
-          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Aeration%20system%20in%20a%20Aqua%20Pond,%20Eluru.jpg?width=400" style="width:100%;height:80px;object-fit:cover;display:block;" alt="" loading="lazy">
-          <div style="padding:4px 8px;font-size:10px;color:#90a4ae;">2号塘 · 全景</div>
+          <img src="https://picsum.photos/seed/aqua-cam2/400/200" style="width:100%;height:80px;object-fit:cover;display:block;" alt="" loading="lazy">
+          <div style="padding:4px 8px;font-size:12px;color:#90a4ae;">2号塘 · 全景</div>
         </div>
       </div>
       <div class="sec-title"> 摄像头列表</div>
@@ -248,7 +248,7 @@
     <!-- PAGE 5: 登录 -->
     <div class="page" id="page-login">
       <div class="login-page">
-        <img class="logo-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Fish%20Farm%20near%20the%20village%20of%20Garni,%20Kotayk,%20Armenia.jpg?width=200" alt="">
+        <img class="logo-img" src="https://picsum.photos/seed/aqua-login/120/120" alt="">
         <div class="logo-text">世电科技</div>
         <div class="logo-sub">Smart Aquaculture Platform</div>
         <input type="text" placeholder="请输入账号" value="admin">
@@ -321,7 +321,7 @@
     extra.innerHTML = [PARAMS_M[4], PARAMS_M[5]].map(p => {
       const v = p.vals[loc];
       const ok = p.key === 'nh3' ? v < 0.1 : v < 0.03;
-      return `<div class="extra-item ${p.key}"><div class="e-icon">${SVG[p.key]}</div><div class="e-label">${p.label}</div><div class="e-value">${v}</div><div class="e-unit">${p.unit}</div><div style="font-size:9px;color:${ok?'#4caf50':'#ff9800'};">${ok?'正常':'偏高'}</div></div>`;
+      return `<div class="extra-item ${p.key}"><div class="e-icon">${SVG[p.key]}</div><div class="e-label">${p.label}</div><div class="e-value">${v}</div><div class="e-unit">${p.unit}</div><div style="font-size:11px;color:${ok?'#4caf50':'#ff9800'};">${ok?'正常':'偏高'}</div></div>`;
     }).join('');
   }
 
