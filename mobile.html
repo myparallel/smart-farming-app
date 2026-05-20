@@ -680,7 +680,7 @@ function initMap(){
   if(mapInstance) return;
   mapInstance=L.map('pondMap',{zoomControl:false,attributionControl:false}).setView([LOCS[0].lat,LOCS[0].lng],14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(mapInstance);
-  L.control.zoom({position:'bottomright'}).addTo(mapInstance);
+  L.control.zoom({position:'topright'}).addTo(mapInstance);
   LOCS.forEach((l,i)=>{
     const m=L.marker([l.lat,l.lng],{icon:L.divIcon({html:`<div style="background:${i===0?'#0288d1':'#78909c'};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]})}).addTo(mapInstance);
     m.bindPopup(`<b>${l.name}</b><br>${l.lng}°E, ${l.lat}°N<br><span style="color:#0288d1;font-size:10px;">DO: ${DATA_LOC[i].do} mg/L</span>`);
