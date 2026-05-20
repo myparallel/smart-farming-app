@@ -1,0 +1,14 @@
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.user
+
+# Temp
+*.tmp
+*.temp

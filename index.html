@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧水产养殖平台 · 数字渔业</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f5fe; color: #1a2a3a; overflow: hidden; height: 100vh; }
+  .app { display: flex; height: 100vh; }
+
+  .sidebar { width: 220px; background: #fff; border-right: 1px solid #e4e9f2; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+  .sidebar .logo { padding: 20px 18px; border-bottom: 1px solid #e4e9f2; background: linear-gradient(135deg,#e8f4fd,#fff); }
+  .sidebar .logo h1 { font-size: 16px; color: #0288d1; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+  .sidebar .logo h1 .badge { width: 22px; height: 22px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
+  .sidebar .logo p { font-size: 11px; color: #90a4ae; margin-top: 4px; padding-left: 30px; }
+  .sidebar nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+  .sidebar nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #607d8b; text-decoration: none; font-size: 13px; cursor: pointer; transition: all .2s; border-left: 3px solid transparent; }
+  .sidebar nav a:hover { background: #f0f5fe; color: #0288d1; }
+  .sidebar nav a.active { background: #e3f2fd; color: #0288d1; border-left-color: #29b6f6; font-weight: 600; }
+  .sidebar nav a .ico { width: 18px; text-align: center; font-size: 15px; }
+  .sidebar .user-info { padding: 14px 18px; border-top: 1px solid #e4e9f2; font-size: 12px; color: #90a4ae; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 50px; background: #fff; border-bottom: 1px solid #e4e9f2; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+  .topbar .left { display: flex; align-items: center; gap: 16px; }
+  .topbar .project { font-size: 14px; font-weight: 600; color: #1a2a3a; }
+  .topbar .project small { font-weight: 400; color: #90a4ae; }
+  .topbar .right { display: flex; align-items: center; gap: 18px; font-size: 13px; color: #607d8b; }
+  .topbar .right .time { color: #0288d1; font-family: monospace; font-size: 14px; font-weight: 600; }
+
+  .wrapper { flex: 1; position: relative; overflow: hidden; }
+  .page { position: absolute; inset: 0; overflow-y: auto; padding: 18px 22px; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .25s ease, transform .25s ease, visibility 0s .25s; pointer-events: none; background: #f0f5fe; will-change: opacity, transform; }
+  .page.active { opacity: 1; visibility: visible; transform: translateY(0); transition: opacity .25s ease, transform .25s ease, visibility 0s 0s; pointer-events: auto; }
+  .page::-webkit-scrollbar { width: 5px; }
+  .page::-webkit-scrollbar-track { background: transparent; }
+  .page::-webkit-scrollbar-thumb { background: #cfd8dc; border-radius: 3px; }
+
+  .curved-header { background: linear-gradient(135deg,#e3f2fd,#bbdefb); border-radius: 0 0 20px 20px; padding: 14px 20px; margin: -18px -22px 16px -22px; display: flex; align-items: center; justify-content: space-between; }
+  .curved-header h2 { font-size: 16px; color: #01579b; display: flex; align-items: center; gap: 8px; }
+  .curved-header .sub { font-size: 12px; color: #607d8b; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: #37474f; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .section-title .badge { font-size: 10px; color: #90a4ae; font-weight: 400; }
+
+  .glass { background: rgba(255,255,255,.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.6); border-radius: 12px; box-shadow: 0 2px 12px rgba(2,136,209,.08),0 1px 3px rgba(0,0,0,.04); }
+  .glass .ch-title { font-size: 12px; color: #607d8b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .glass .ch-title .chip { font-size: 9px; background: #e3f2fd; color: #0288d1; padding: 1px 6px; border-radius: 3px; }
+
+  .dash-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 14px; }
+  .dash-col { display: flex; flex-direction: column; gap: 12px; }
+  .dash-col .glass { padding: 14px; }
+
+  .loc-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .loc-btn { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: #fff; border: 1px solid #e4e9f2; border-radius: 20px; cursor: pointer; transition: all .2s; font-size: 12px; color: #607d8b; box-shadow: 0 1px 3px rgba(0,0,0,.03); }
+  .loc-btn:hover { border-color: #29b6f6; color: #0288d1; }
+  .loc-btn.active { background: #e3f2fd; border-color: #29b6f6; color: #01579b; font-weight: 600; }
+  .loc-btn .loc-dot { width: 6px; height: 6px; border-radius: 50%; background: #cfd8dc; flex-shrink: 0; }
+  .loc-btn.active .loc-dot { background: #29b6f6; box-shadow: 0 0 6px rgba(41,182,246,.4); }
+  .loc-btn .loc-coord { font-size: 10px; color: #90a4ae; font-family: monospace; }
+
+  .map-wrap { margin-bottom: 14px; border-radius: 12px; overflow: hidden; border: 1px solid #e4e9f2; box-shadow: 0 2px 8px rgba(2,136,209,.06); }
+  #pondMap { height: 180px; background: #e8eaf6; }
+
+  .params-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .param-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 12px; padding: 16px 10px 12px; text-align: center; cursor: pointer; transition: all .3s; box-shadow: 0 1px 4px rgba(0,0,0,.03); position: relative; overflow: hidden; }
+  .param-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; opacity: .6; }
+  .param-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(2,136,209,.12); border-color: #29b6f6; }
+  .param-card.active { border-color: #29b6f6; background: #f5faff; }
+  .param-card .p-icon { height: 30px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; opacity: .6; }
+  .param-card .p-icon svg { width: 22px; height: 22px; }
+  .param-card .p-label { font-size: 11px; color: #90a4ae; letter-spacing: .5px; }
+  .param-card .p-value { font-size: 32px; font-weight: 700; font-family: 'Helvetica Neue', 'SF Pro Display', monospace; margin: 4px 0 2px; line-height: 1; letter-spacing: -1px; }
+  .param-card .p-unit { font-size: 11px; color: #90a4ae; font-weight: 400; }
+  .param-card .p-status { font-size: 10px; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 10px; background: #f5f5f5; }
+  .param-card .p-status .dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+  .param-card .p-status.ok { background: #e8f5e9; color: #4caf50; } .param-card .p-status.ok .dot { background: #4caf50; }
+  .param-card .p-status.warn { background: #fff3e0; color: #ff9800; } .param-card .p-status.warn .dot { background: #ff9800; }
+  .param-card .p-loc { font-size: 8px; color: #cfd8dc; margin-top: 6px; font-family: monospace; letter-spacing: .3px; }
+
+  .param-do .p-value { color: #0288d1; } .param-do::before { background: #0288d1; } .param-do svg * { stroke: #0288d1; fill: none; }
+  .param-temp .p-value { color: #ff7043; } .param-temp::before { background: #ff7043; } .param-temp svg * { stroke: #ff7043; fill: none; }
+  .param-ph .p-value { color: #7b1fa2; } .param-ph::before { background: #7b1fa2; } .param-ph svg * { stroke: #7b1fa2; fill: none; }
+  .param-sal .p-value { color: #00897b; } .param-sal::before { background: #00897b; } .param-sal svg * { stroke: #00897b; fill: none; }
+  .param-nh3 .p-value { color: #ef6c00; } .param-nh3::before { background: #ef6c00; } .param-nh3 svg * { stroke: #ef6c00; fill: none; }
+  .param-nitrite .p-value { color: #d32f2f; } .param-nitrite::before { background: #d32f2f; } .param-nitrite svg * { stroke: #d32f2f; fill: none; }
+
+  .detail-panel { max-height: 0; overflow: hidden; transition: max-height .4s cubic-bezier(.4,0,.2,1); margin-bottom: 0; }
+  .detail-panel.open { max-height: 500px; margin-bottom: 14px; }
+  .detail-inner { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(2,136,209,.06); }
+  .detail-inner .d-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .detail-inner .d-header .d-title { font-size: 13px; color: #37474f; display: flex; align-items: center; gap: 8px; }
+  .detail-inner .d-header .d-close { font-size: 16px; color: #90a4ae; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+  .detail-inner .d-header .d-close:hover { background: #f0f5fe; color: #37474f; }
+  .detail-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .detail-table th { background: #f5f7fa; color: #607d8b; padding: 7px 10px; text-align: left; border-bottom: 1px solid #eceff1; font-weight: 500; }
+  .detail-table td { padding: 6px 10px; border-bottom: 1px solid #eceff1; color: #37474f; }
+  .detail-table tr:hover td { background: #f5faff; }
+  .detail-table .tag { font-size: 10px; padding: 1px 8px; border-radius: 3px; }
+  .detail-table .tag.ok { background: #e8f5e9; color: #4caf50; }
+  .detail-table .tag.warn { background: #fff3e0; color: #ff9800; }
+
+  .info-row { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid #eceff1; }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .label { color: #90a4ae; }
+  .info-row .value { color: #37474f; font-weight: 500; }
+  .feed-chart-box { position: relative; width: 100%; height: 60px; }
+  .feed-chart-box canvas { display: block; width: 100%; height: 100%; }
+
+  .device-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .device-item { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
+  .device-item .d-icon { font-size: 18px; margin-bottom: 2px; }
+  .device-item .d-name { font-size: 11px; color: #607d8b; }
+  .device-item .d-state { font-size: 10px; margin-top: 3px; padding: 2px 10px; border-radius: 12px; display: inline-block; }
+  .device-item .d-state.on { background: #e8f5e9; color: #4caf50; }
+  .device-item .d-state.off { background: #f5f5f5; color: #9e9e9e; }
+
+  .ctrl-panel { background: #fff; border: 1px solid #e4e9f2; border-radius: 12px; padding: 14px; box-shadow: 0 2px 12px rgba(2,136,209,.08); }
+  .ctrl-panel .ctrl-row { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; }
+  .ctrl-panel .ctrl-row label { color: #90a4ae; min-width: 48px; font-size: 11px; }
+  .ctrl-panel .ctrl-row select,.ctrl-panel .ctrl-row input { background: #f5f7fa; border: 1px solid #e4e9f2; color: #37474f; padding: 4px 8px; border-radius: 6px; font-size: 11px; outline: none; }
+  .ctrl-panel .ctrl-row select:focus,.ctrl-panel .ctrl-row input:focus { border-color: #29b6f6; }
+  .ctrl-panel .ctrl-row button { padding: 4px 14px; font-size: 11px; border: none; border-radius: 6px; cursor: pointer; transition: .2s; }
+  .ctrl-panel .ctrl-row button:active { transform: scale(.95); }
+  .ctrl-panel .ctrl-row button.send { background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; }
+  .ctrl-panel .ctrl-row button.start { background: #4caf50; color: #fff; }
+  .ctrl-panel .ctrl-row button.stop { background: #f44336; color: #fff; }
+
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+  .filter-bar select,.filter-bar input { background: #fff; border: 1px solid #e4e9f2; color: #37474f; padding: 5px 10px; border-radius: 6px; font-size: 11px; outline: none; }
+  .filter-bar select:focus,.filter-bar input:focus { border-color: #29b6f6; }
+  .filter-bar button { background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; border: none; padding: 5px 14px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+  .filter-bar .btn-outline { background: #fff; color: #607d8b; border: 1px solid #e4e9f2; }
+
+  .setting-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.03); }
+  .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eceff1; font-size: 12px; }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-row .s-label { color: #37474f; }
+  .setting-row .s-val { color: #90a4ae; font-size: 11px; }
+  .setting-row .s-input { background: #f5f7fa; border: 1px solid #e4e9f2; color: #37474f; padding: 3px 8px; border-radius: 4px; font-size: 11px; width: 80px; text-align: center; outline: none; }
+  .setting-row .s-input:focus { border-color: #29b6f6; }
+
+  .toggle { position: relative; width: 36px; height: 20px; display: inline-block; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle .slider { position: absolute; inset: 0; background: #cfd8dc; border-radius: 10px; cursor: pointer; transition: .3s; }
+  .toggle .slider::before { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .toggle input:checked + .slider { background: linear-gradient(135deg,#29b6f6,#0288d1); }
+  .toggle input:checked + .slider::before { transform: translateX(16px); }
+
+  .alarm-item { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .alarm-item .a-left { display: flex; align-items: center; gap: 10px; }
+  .alarm-item .a-icon { font-size: 16px; }
+  .alarm-item .a-info .a-name { font-size: 13px; color: #37474f; }
+  .alarm-item .a-info .a-desc { font-size: 11px; color: #90a4ae; }
+  .alarm-item .a-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; }
+  .alarm-item .a-badge.done { background: #e8f5e9; color: #4caf50; }
+  .alarm-item .a-badge.pending { background: #ffebee; color: #f44336; }
+  .alarm-item .a-badge.recovered { background: #e3f2fd; color: #0288d1; }
+
+  .dev-list { display: flex; flex-direction: column; gap: 6px; }
+  .dev-row { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px 14px; }
+  .dev-row .d-left { display: flex; align-items: center; gap: 8px; }
+  .dev-row .d-name { font-size: 12px; color: #37474f; }
+  .dev-row .d-desc { font-size: 10px; color: #90a4ae; }
+  .dev-row .d-status { font-size: 10px; padding: 2px 8px; border-radius: 4px; }
+  .dev-row .d-status.on { background: #e8f5e9; color: #4caf50; }
+  .dev-row .d-status.off { background: #f5f5f5; color: #9e9e9e; }
+
+  .chart-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 12px; padding: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.03); }
+  .chart-box .ch-title { font-size: 12px; color: #607d8b; margin-bottom: 8px; }
+  .chart-box .chart-container { position: relative; width: 100%; height: 140px; }
+  .chart-box .chart-container canvas { display: block; width: 100%; height: 100%; }
+
+  .water-list { display: flex; flex-direction: column; gap: 8px; }
+  .water-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .water-row:hover { background: #f5faff; }
+  .water-row .w-left { display: flex; align-items: center; gap: 12px; }
+  .water-row .w-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .water-row .w-name { font-size: 13px; color: #37474f; }
+  .water-row .w-range { font-size: 11px; color: #90a4ae; margin-top: 1px; }
+  .water-row .w-val { font-size: 20px; font-weight: 700; font-family: monospace; }
+  .water-row .w-status { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #e8f5e9; color: #4caf50; }
+
+  .loc-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+  .loc-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 12px; cursor: pointer; transition: all .2s; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
+  .loc-card:hover { border-color: #29b6f6; box-shadow: 0 2px 8px rgba(2,136,209,.08); }
+  .loc-card.active { border-color: #29b6f6; background: #f5faff; }
+  .loc-card .lc-name { font-size: 13px; color: #37474f; display: flex; align-items: center; gap: 6px; }
+  .loc-card .lc-name .pin { color: #0288d1; font-size: 12px; }
+  .loc-card .lc-coord { font-size: 10px; color: #90a4ae; font-family: monospace; margin-top: 2px; }
+  .loc-card .lc-id { font-size: 10px; color: #cfd8dc; margin-top: 1px; }
+
+  .leaflet-container { background: #e8eaf6; }
+  .leaflet-control-zoom a { background: #fff; color: #37474f; border-color: #e4e9f2; }
+  .leaflet-popup-content-wrapper { background: #fff; color: #37474f; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+  .leaflet-popup-tip { background: #fff; }
+
+  /* Map marker pulse ripple */
+  @keyframes markerPulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: .3; transform: scale(2.2); }
+    100% { opacity: 0; transform: scale(3); }
+  }
+  @keyframes markerPulseInner {
+    0% { opacity: .6; transform: scale(1); }
+    50% { opacity: .2; transform: scale(1.6); }
+    100% { opacity: 0; transform: scale(2); }
+  }
+  .pulse-marker { position: relative; width: 12px; height: 12px; }
+  .pulse-marker .core { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; z-index: 2; }
+  .pulse-marker .ring { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; animation: markerPulse 2s ease-out infinite; z-index: 1; }
+  .pulse-marker .ring2 { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; animation: markerPulseInner 2s ease-out .6s infinite; z-index: 1; }
+  .hero-img { width: 100%; height: 100px; object-fit: cover; border-radius: 10px; display: block; margin-bottom: 12px; border: 1px solid #e4e9f2; }
+  .tag-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag { background: #e3f2fd; color: #0288d1; padding: 2px 10px; border-radius: 4px; font-size: 10px; }
+  .v-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .v-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
+  .v-box .v-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+  .v-box .v-label { padding: 6px 10px; font-size: 11px; color: #607d8b; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 12px 12px;border-bottom:1px solid #e4e9f2;background:linear-gradient(135deg,#e8f4fd,#fff);gap:10px;">
+      <img src="海南世电_默认3-1.svg" alt="WEST" style="width:156px;height:auto;display:block;flex-shrink:0;">
+      <span data-i18n="platform" style="font-size:13px;font-weight:700;color:#01579b;letter-spacing:2px;text-align:center;line-height:1.3;">智慧水产养殖平台</span>
+    </div>
+    <nav id="sidebarNav">
+      <a class="active" data-page="0"><span class="ico"> </span><span data-i18n="nav0">总览仪表盘</span></a>
+      <a data-page="1"><span class="ico"> </span><span data-i18n="nav1">水质监测</span></a>
+      <a data-page="2"><span class="ico"> </span><span data-i18n="nav2">设备控制</span></a>
+      <a data-page="3"><span class="ico"> </span><span data-i18n="nav3">视频监控</span></a>
+      <a data-page="4"><span class="ico"> </span><span data-i18n="nav4">历史数据</span></a>
+      <a data-page="5"><span class="ico"> </span><span data-i18n="nav5">设备绑定</span></a>
+      <a data-page="6"><span class="ico"> </span><span data-i18n="nav6">报警设置</span></a>
+      <a data-page="7"><span class="ico"> </span><span data-i18n="nav7">账号管理</span></a>
+    </nav>
+    <div class="user-info">
+      <div><span data-i18n="traffic">剩余流量</span>: 126 <span data-i18n="days">天</span></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="left">
+        <span class="project"><span id="pageTitle">总览仪表盘</span> <small>· 海南世电中国南海养殖实验基地</small></span>
+      </div>
+      <div class="right" style="display:flex;align-items:center;gap:12px;font-size:12px;">
+        <span style="display:flex;align-items:center;gap:4px;"><span data-i18n="admin">管理员</span>: <span style="color:#37474f;font-weight:500;">张三</span></span>
+        <span style="color:#cfd8dc;">|</span>
+        <span data-i18n="subtitle" style="color:#90a4ae;font-size:11px;">海南世电科技有限公司</span>
+        <span style="color:#cfd8dc;">|</span>
+        <span class="weather"> 晴 28°C</span>
+        <span class="time" id="clock" style="color:#0288d1;font-weight:600;">--:--:--</span>
+        <span onclick="toggleLang()" style="font-size:11px;padding:3px 10px;border-radius:12px;background:#e3f2fd;color:#0288d1;cursor:pointer;font-weight:600;user-select:none;" data-i18n-toggle>EN</span>
+      </div>
+    </header>
+
+    <div class="wrapper">
+      <!-- ===== PAGE 0: 总览仪表盘 (优先级排列) ===== -->
+      <div class="page active" data-page="0">
+        <div class="curved-header">
+          <h2 data-i18n="p0title"> 养殖实时总览</h2>
+          <span class="sub" data-i18n="p0sub">数据更新: 2026-05-20 08:30 · 传感器在线率 98.6%</span>
+        </div>
+
+        <div class="loc-bar" id="locBar">
+          <div class="loc-btn active" data-loc="0"><span class="loc-dot"></span>1号塘 <span class="loc-coord">110.3528°E,20.0215°N</span></div>
+          <div class="loc-btn" data-loc="1"><span class="loc-dot"></span>2号塘 <span class="loc-coord">110.3556°E,20.0242°N</span></div>
+          <div class="loc-btn" data-loc="2"><span class="loc-dot"></span>3号塘 <span class="loc-coord">110.3497°E,20.0188°N</span></div>
+          <div class="loc-btn" data-loc="3"><span class="loc-dot"></span>4号塘 <span class="loc-coord">110.3589°E,20.0261°N</span></div>
+        </div>
+
+        <!-- 1. 指标 (最高优先级) -->
+        <div class="section-title" style="margin-bottom:10px;" data-i18n="wq"><span>实时水质参数</span> <span class="badge" data-i18n="click">（点击查看采集详情）</span></div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px;">
+          <div id="paramsGridTop" style="display:contents;"></div>
+        </div>
+        <div class="detail-panel" id="detailPanel">
+          <div class="detail-inner">
+            <div class="d-header"><div class="d-title" id="detailTitle"> 溶解氧 · 历史采集数据</div><span class="d-close" onclick="closeDetail()">✕</span></div>
+            <div style="overflow-x:auto;"><table class="detail-table" id="detailTable"></table></div>
+          </div>
+        </div>
+
+        <!-- 2. 曲线 (第二优先级) -->
+        <div class="glass" style="padding:14px;margin-bottom:14px;">
+          <div class="ch-title"><span data-i18n="trend">水质参数变化趋势</span> <span class="chip" data-i18n="d24h">近24h</span></div>
+          <div style="position:relative;width:100%;height:120px;"><canvas id="dashTrendChart" style="display:block;width:100%;height:100%;"></canvas></div>
+        </div>
+
+        <!-- 3. 实时监控 (第三优先级) -->
+        <div class="glass" style="padding:10px;margin-bottom:14px;">
+          <div class="ch-title" style="padding:0 4px;"> 实时监控 <span class="chip">1号塘口 · 全景</span></div>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Aeration%20system%20in%20a%20Aqua%20Pond,%20Eluru.jpg?width=800" style="width:100%;height:160px;object-fit:cover;border-radius:8px;border:1px solid #e4e9f2;display:block;" loading="lazy">
+        </div>
+
+        <!-- 4. 地图 + 5. 设备统计与清单 (第四、五优先级) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div class="glass" style="padding:10px;">
+            <div class="ch-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span> 塘口分布地图</span>
+              <span style="display:flex;gap:4px;" id="mapPondBtns">
+                <span class="map-pond-btn active" data-midx="0" style="font-size:10px;padding:1px 8px;border-radius:8px;background:#e3f2fd;color:#0288d1;cursor:pointer;">1号</span>
+                <span class="map-pond-btn" data-midx="1" style="font-size:10px;padding:1px 8px;border-radius:8px;background:#f5f5f5;color:#90a4ae;cursor:pointer;">2号</span>
+                <span class="map-pond-btn" data-midx="2" style="font-size:10px;padding:1px 8px;border-radius:8px;background:#f5f5f5;color:#90a4ae;cursor:pointer;">3号</span>
+                <span class="map-pond-btn" data-midx="3" style="font-size:10px;padding:1px 8px;border-radius:8px;background:#f5f5f5;color:#90a4ae;cursor:pointer;">4号</span>
+              </span>
+            </div>
+            <div class="map-wrap" style="margin-bottom:0;position:relative;">
+              <div id="pondMap" style="height:200px;"></div>
+            </div>
+          </div>
+          <div class="glass" style="padding:14px;">
+            <div class="ch-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span> 设备清单</span>
+              <span id="devicePondLabel" style="font-size:10px;color:#0288d1;font-weight:600;">1号塘</span>
+            </div>
+            <div id="deviceStatsRow" style="display:flex;gap:8px;margin-bottom:10px;"></div>
+            <div id="deviceListContainer" style="display:flex;flex-direction:column;gap:5px;"></div>
+          </div>
+        </div>
+
+        <!-- 6. 概况 (最低优先级) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="glass" style="padding:14px;">
+            <div class="ch-title"> 养殖概况</div>
+            <div class="info-row"><span class="label">基地名称</span><span class="value">海南世东水产</span></div>
+            <div class="info-row"><span class="label">养殖面积</span><span class="value">120 亩</span></div>
+            <div class="info-row"><span class="label">当前存塘量</span><span class="value">38.5 吨</span></div>
+            <div class="info-row"><span class="label">今日投喂</span><span class="value">860 kg</span></div>
+            <div class="info-row"><span class="label">传感器在线</span><span class="value" style="color:#4caf50;">24 / 26</span></div>
+          </div>
+          <div class="glass" style="padding:14px;">
+            <div class="ch-title"> 生长曲线 <span class="chip">近30日</span></div>
+            <div class="feed-chart-box"><canvas id="growthChart"></canvas></div>
+          </div>
+          <div class="glass" style="padding:14px;">
+            <div class="ch-title"> 饲料投喂 <span class="chip">今日</span></div>
+            <div style="display:flex;gap:10px;padding:4px 0;">
+              <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:700;color:#0288d1;">860</div><div style="font-size:10px;color:#90a4ae;">计划(kg)</div></div>
+              <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:700;color:#4caf50;">820</div><div style="font-size:10px;color:#90a4ae;">完成(kg)</div></div>
+              <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:700;color:#ff9800;">95%</div><div style="font-size:10px;color:#90a4ae;">完成率</div></div>
+            </div>
+            <div style="height:4px;background:#eceff1;border-radius:2px;overflow:hidden;margin-top:4px;"><div style="width:95%;height:100%;background:linear-gradient(90deg,#29b6f6,#4caf50);border-radius:2px;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 1: 水质监测 ===== -->
+      <div class="page" data-page="1">
+        <div class="curved-header"><h2> 水质监测 · 实时数据</h2><span class="sub">传感器每30秒自动上报</span></div>
+        <div class="loc-bar" id="locBar1">
+          <div class="loc-btn active" data-loc="0"><span class="loc-dot"></span>1号塘</div>
+          <div class="loc-btn" data-loc="1"><span class="loc-dot"></span>2号塘</div>
+          <div class="loc-btn" data-loc="2"><span class="loc-dot"></span>3号塘</div>
+          <div class="loc-btn" data-loc="3"><span class="loc-dot"></span>4号塘</div>
+        </div>
+        <div class="water-list" id="waterList"></div>
+        <div class="detail-panel" id="detailPanel1">
+          <div class="detail-inner">
+            <div class="d-header"><div class="d-title" id="detailTitle1"> 采集数据详情</div><span class="d-close" onclick="document.getElementById('detailPanel1').classList.remove('open')">✕</span></div>
+            <div style="overflow-x:auto;"><table class="detail-table" id="detailTable1"></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 2: 设备控制 ===== -->
+      <div class="page" data-page="2">
+        <div class="curved-header"><h2> 设备远程控制</h2><span class="sub">远程启停 · 参数设置 · 定时任务</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <span style="background:#0288d1;color:#fff;padding:5px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">1号塘</span>
+          <span style="background:#fff;border:1px solid #e4e9f2;padding:5px 16px;border-radius:20px;font-size:12px;color:#607d8b;cursor:pointer;">2号塘</span>
+          <span style="background:#fff;border:1px solid #e4e9f2;padding:5px 16px;border-radius:20px;font-size:12px;color:#607d8b;cursor:pointer;">3号塘</span>
+          <span style="background:#fff;border:1px solid #e4e9f2;padding:5px 16px;border-radius:20px;font-size:12px;color:#607d8b;cursor:pointer;">4号塘</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="ctrl-panel"><div class="ch-title"> 增氧机</div><div class="ctrl-row"><label>状态</label><span style="color:#4caf50;font-weight:500;"> 运行中 1200rpm</span></div><div class="ctrl-row"><label>定时</label><input type="text" placeholder="06:00-18:00" style="width:100px;"></div><div class="ctrl-row"><label>操作</label><button class="start">启动</button><button class="stop">停止</button></div></div>
+          <div class="ctrl-panel"><div class="ch-title"> 水泵</div><div class="ctrl-row"><label>状态</label><span style="color:#4caf50;font-weight:500;"> 进水模式</span></div><div class="ctrl-row"><label>模式</label><select><option>进水</option><option>排水</option></select></div><div class="ctrl-row"><label>操作</label><button class="start">执行</button></div></div>
+          <div class="ctrl-panel"><div class="ch-title"> 投料机</div><div class="ctrl-row"><label>状态</label><span style="color:#9e9e9e;"> 已停机</span></div><div class="ctrl-row"><label>投喂量</label><input type="text" placeholder="50kg" style="width:70px;"></div><div class="ctrl-row"><label>操作</label><button class="start">投料</button><button class="stop">停止</button></div></div>
+          <div class="ctrl-panel"><div class="ch-title"> 照明</div><div class="ctrl-row"><label>状态</label><span style="color:#9e9e9e;"> 已关闭</span></div><div class="ctrl-row"><label>定时</label><input type="text" placeholder="18:00-06:00" style="width:100px;"></div><div class="ctrl-row"><label>操作</label><button class="start">开启</button><button class="stop">关闭</button></div></div>
+          <div class="ctrl-panel"><div class="ch-title"> 温度调节</div><div class="ctrl-row"><label>状态</label><span style="color:#4caf50;font-weight:500;"> 恒温 26°C</span></div><div class="ctrl-row"><label>目标</label><input type="text" value="26" style="width:60px;"><span style="color:#90a4ae;">°C</span></div><div class="ctrl-row"><label>操作</label><button class="start">设定</button></div></div>
+          <div class="ctrl-panel"><div class="ch-title"> 灯控</div><div class="ctrl-row"><label>状态</label><span style="color:#9e9e9e;"> 已关闭</span></div><div class="ctrl-row"><label>亮度</label><select><option>100%</option><option>75%</option><option>50%</option></select></div><div class="ctrl-row"><label>操作</label><button class="start">开启</button><button class="stop">关闭</button></div></div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 3: 视频监控 ===== -->
+      <div class="page" data-page="3">
+        <div class="curved-header"><h2> 视频监控 · 实时画面</h2><span class="sub">视频监控调取数据点位可选</span></div>
+        <div class="v-grid">
+          <div class="v-box"><img class="v-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Aquaculture%206.jpg?width=600" alt="" loading="lazy"><div class="v-label"> 1号塘口 · 全景</div></div>
+          <div class="v-box"><img class="v-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Aquaculture%201.jpg?width=600" alt="" loading="lazy"><div class="v-label"> 2号塘口 · 全景</div></div>
+          <div class="v-box"><img class="v-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Aeration%20systems%20in%20an%20Aqua%20pond%20near%20Eluru.jpg?width=600" alt="" loading="lazy"><div class="v-label"> 3号塘口 · 东侧</div></div>
+          <div class="v-box"><img class="v-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Aeration%20system%20in%20a%20Aqua%20Pond,%20Eluru.jpg?width=600" alt="" loading="lazy"><div class="v-label"> 3号塘口 · 西侧</div></div>
+        </div>
+        <div class="chart-box">
+          <div class="ch-title"> 摄像头设备列表</div>
+          <div class="dev-list">
+            <div class="dev-row"><div class="d-left"><span style="font-size:16px;"> </span><div><div class="d-name">IPC-01 · 1号塘全景</div><div class="d-desc">110.3533°E, 20.0221°N</div></div></div><span class="d-status on">在线</span></div>
+            <div class="dev-row"><div class="d-left"><span style="font-size:16px;"> </span><div><div class="d-name">IPC-02 · 2号塘全景</div><div class="d-desc">110.3561°E, 20.0248°N</div></div></div><span class="d-status on">在线</span></div>
+            <div class="dev-row"><div class="d-left"><span style="font-size:16px;"> </span><div><div class="d-name">IPC-03 · 3号塘东侧</div><div class="d-desc">110.3502°E, 20.0193°N</div></div></div><span class="d-status on">在线</span></div>
+            <div class="dev-row"><div class="d-left"><span style="font-size:16px;"> </span><div><div class="d-name">IPC-04 · 3号塘西侧</div><div class="d-desc">110.3490°E, 20.0185°N</div></div></div><span class="d-status off">离线</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 4: 历史数据 ===== -->
+      <div class="page" data-page="4">
+        <div class="curved-header"><h2> 历史数据查询</h2><span class="sub">数据保存2个月 · 支持筛选与导出</span></div>
+        <div class="filter-bar">
+          <select><option>1号塘口</option><option>2号塘口</option><option>3号塘口</option></select>
+          <select><option>全部参数</option><option>溶解氧</option><option>水温</option><option>pH</option></select>
+          <input type="text" value="2026-05-01">
+          <span style="color:#90a4ae;font-size:12px;">至</span>
+          <input type="text" value="2026-05-20">
+          <button>查询</button>
+          <button class="btn-outline" style="background:#fff;color:#607d8b;border:1px solid #e4e9f2;">导出表格</button>
+        </div>
+        <div class="chart-box" style="margin-bottom:12px;"><div class="chart-container"><canvas id="historyChart"></canvas></div></div>
+        <div class="chart-box">
+          <div class="ch-title"> 记录列表 <span class="chip">386条</span></div>
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead><tr><th>时间</th><th>塘口</th><th>溶解氧</th><th>水温</th><th>pH</th><th>氨氮</th><th>亚硝酸盐</th></tr></thead>
+              <tbody>
+                <tr><td>05-20 08:00</td><td>1号塘</td><td>6.82</td><td>26.3</td><td>7.82</td><td>0.05</td><td>0.02</td></tr>
+                <tr><td>05-20 06:00</td><td>1号塘</td><td>6.55</td><td>25.8</td><td>7.75</td><td>0.06</td><td>0.02</td></tr>
+                <tr><td>05-20 04:00</td><td>1号塘</td><td>6.21</td><td>25.5</td><td>7.70</td><td>0.06</td><td>0.03</td></tr>
+                <tr><td>05-20 02:00</td><td>1号塘</td><td>6.08</td><td>25.3</td><td>7.68</td><td>0.07</td><td>0.03</td></tr>
+                <tr><td>05-20 00:00</td><td>1号塘</td><td>6.35</td><td>25.6</td><td>7.72</td><td>0.06</td><td>0.02</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 5: 设备绑定 ===== -->
+      <div class="page" data-page="5">
+        <div class="curved-header"><h2> 设备绑定设置</h2><span class="sub">网关绑定 · 监测箱绑定 · 报警阈值</span></div>
+        <div class="setting-card">
+          <div class="ch-title" style="margin-bottom:8px;"> 网关绑定</div>
+          <div class="setting-row"><span class="s-label">网关编号</span><span class="s-val">GW-20260501-001</span><span style="color:#4caf50;font-size:11px;">已绑定</span></div>
+          <div class="setting-row"><span class="s-label">传感器点位</span><span class="s-val">1号塘 · 2号塘 · 3号塘</span><span style="color:#0288d1;font-size:11px;cursor:pointer;">编辑</span></div>
+          <div class="setting-row"><span class="s-label">传感器类型</span><span class="s-val">溶解氧 / 温度 / pH / 盐度 / 氨氮 / 亚硝酸盐</span></div>
+        </div>
+        <div class="setting-card">
+          <div class="ch-title" style="margin-bottom:8px;"> 水质监测箱绑定</div>
+          <div class="setting-row"><span class="s-label">监测箱编号</span><span class="s-val">BOX-A01</span><span style="color:#4caf50;font-size:11px;">已绑定</span></div>
+          <div class="setting-row"><span class="s-label">采集顺序</span><span class="s-val">1号塘 → 2号塘 → 3号塘（轮巡）</span></div>
+          <div class="setting-row"><span class="s-label">共用传感器</span><span class="s-val">多个塘口共用方案已启用</span></div>
+        </div>
+        <div class="setting-card">
+          <div class="ch-title" style="margin-bottom:8px;"> 设备报警阈值设定</div>
+          <div class="setting-row"><span class="s-label">溶解氧下限</span><input class="s-input" value="4.0"> <span style="color:#90a4ae;font-size:11px;">mg/L</span></div>
+          <div class="setting-row"><span class="s-label">温度上限</span><input class="s-input" value="32"> <span style="color:#90a4ae;font-size:11px;">°C</span></div>
+          <div class="setting-row"><span class="s-label">pH 范围</span><input class="s-input" value="6.0" style="width:60px;"> – <input class="s-input" value="9.0" style="width:60px;"></div>
+          <div class="setting-row"><span class="s-label">氨氮上限</span><input class="s-input" value="0.2"> <span style="color:#90a4ae;font-size:11px;">mg/L</span></div>
+          <div class="setting-row"><span class="s-label">亚硝酸盐上限</span><input class="s-input" value="0.1"> <span style="color:#90a4ae;font-size:11px;">mg/L</span></div>
+          <div class="setting-row" style="justify-content:flex-end;border:none;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:6px 20px;border-radius:6px;font-size:12px;cursor:pointer;">保存设置</button></div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 6: 报警设置 ===== -->
+      <div class="page" data-page="6">
+        <div class="curved-header"><h2> 报警设置 · 通知管理</h2><span class="sub">短信/邮箱/电话多通道报警</span></div>
+        <div class="setting-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eceff1;font-size:13px;"><span> 短信报警</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eceff1;font-size:13px;"><span>绑定手机</span><span style="color:#607d8b;font-size:12px;">138****8888</span><span style="color:#0288d1;font-size:11px;cursor:pointer;">编辑</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eceff1;font-size:13px;"><span>备用手机</span><span style="color:#607d8b;font-size:12px;">139****9999</span><span style="color:#0288d1;font-size:11px;cursor:pointer;">编辑</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eceff1;font-size:13px;"><span> 邮箱报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:13px;"><span> 电话报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+        </div>
+        <div class="section-title"> 近期报警记录</div>
+        <div class="alarm-item"><div class="a-left"><span class="a-icon"> </span><div class="a-info"><div class="a-name">1号塘 · 溶解氧偏低</div><div class="a-desc">2026-05-19 03:15 · 值:3.85 mg/L · 已启动增氧机</div></div></div><span class="a-badge recovered">已处理</span></div>
+        <div class="alarm-item"><div class="a-left"><span class="a-icon"> </span><div class="a-info"><div class="a-name">2号塘 · 温度过高</div><div class="a-desc">2026-05-18 14:30 · 值:33.2 °C · 已开启降温</div></div></div><span class="a-badge done">已恢复</span></div>
+        <div class="alarm-item"><div class="a-left"><span class="a-icon"> </span><div class="a-info"><div class="a-name">1号塘 · 打氧机故障</div><div class="a-desc">2026-05-18 06:12 · 设备异常停机</div></div></div><span class="a-badge pending">未处理</span></div>
+        <div class="alarm-item"><div class="a-left"><span class="a-icon"> </span><div class="a-info"><div class="a-name">3号塘 · 氨氮超标</div><div class="a-desc">2026-05-17 22:00 · 值:0.35 mg/L · 已换水处理</div></div></div><span class="a-badge done">已恢复</span></div>
+      </div>
+
+      <!-- ===== PAGE 7: 账号管理 ===== -->
+      <div class="page" data-page="7">
+        <div class="curved-header"><h2> 账号管理</h2><span class="sub">用户管理 · 权限分级 · 操作记录</span></div>
+        <div class="setting-card">
+          <div class="ch-title" style="margin-bottom:8px;"> 当前账号信息</div>
+          <div class="setting-row"><span class="s-label">用户名</span><span class="s-val">zhangsan</span></div>
+          <div class="setting-row"><span class="s-label">角色</span><span class="s-val" style="color:#0288d1;font-weight:600;">公司管理员</span></div>
+          <div class="setting-row"><span class="s-label">剩余流量</span><span class="s-val" style="color:#0288d1;font-weight:600;">126 天</span></div>
+          <div class="setting-row"><span class="s-label">功能授权</span><div class="tag-group"><span class="tag">水质监测</span><span class="tag">设备控制</span><span class="tag">历史数据</span><span class="tag">视频监控</span><span class="tag">报警设置</span></div></div>
+          <div class="setting-row"><span class="s-label">修改密码</span><span style="color:#0288d1;font-size:11px;cursor:pointer;">修改</span></div>
+        </div>
+        <div class="setting-card">
+          <div class="ch-title" style="margin-bottom:8px;"> 子账号管理</div>
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>权限</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>lisi</td><td>李四</td><td>操作员</td><td><span style="color:#90a4ae;">水质查看 · 设备控制</span></td><td><span style="color:#0288d1;cursor:pointer;">编辑</span> <span style="color:#f44336;cursor:pointer;">禁用</span></td></tr>
+                <tr><td>wangwu</td><td>王五</td><td>操作员</td><td><span style="color:#90a4ae;">水质查看</span></td><td><span style="color:#0288d1;cursor:pointer;">编辑</span> <span style="color:#f44336;cursor:pointer;">禁用</span></td></tr>
+                <tr><td>zhaoliu</td><td>赵六</td><td>维护员</td><td><span style="color:#90a4ae;">设备管理 · 报警设置</span></td><td><span style="color:#0288d1;cursor:pointer;">编辑</span> <span style="color:#f44336;cursor:pointer;">禁用</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:10px;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:6px 20px;border-radius:6px;font-size:12px;cursor:pointer;">+ 添加子账号</button></div>
+        </div>
+        <div class="setting-card">
+          <div class="ch-title" style="margin-bottom:8px;"> 操作记录</div>
+          <div style="font-size:12px;color:#607d8b;line-height:2.2;">
+            <div>2026-05-20 08:15 张三 启用了 1号塘 增氧机</div>
+            <div>2026-05-20 06:30 张三 查看 1号塘 水质数据</div>
+            <div>2026-05-19 22:00 李四 修改 2号塘 报警阈值</div>
+            <div>2026-05-19 18:45 张三 新增子账号 wangwu</div>
+            <div>2026-05-19 14:20 系统 1号塘 溶解氧报警已恢复</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const LOCATIONS = [
+    {id:'POND-001',name:'1号塘',lat:20.0215,lng:110.3528},
+    {id:'POND-002',name:'2号塘',lat:20.0242,lng:110.3556},
+    {id:'POND-003',name:'3号塘',lat:20.0188,lng:110.3497},
+    {id:'POND-004',name:'4号塘',lat:20.0261,lng:110.3589}
+  ];
+  const PARAMS = [
+    {key:'do',label:'溶解氧',unit:'mg/L',color:'#0288d1'},
+    {key:'temp',label:'水温',unit:'°C',color:'#ff7043'},
+    {key:'ph',label:'pH值',unit:'pH',color:'#7b1fa2'},
+    {key:'sal',label:'盐度',unit:'‰',color:'#00897b'},
+    {key:'nh3',label:'氨氮',unit:'mg/L',color:'#ef6c00'},
+    {key:'nitrite',label:'亚硝酸盐',unit:'mg/L',color:'#d32f2f'}
+  ];
+  const DATA_LOC = [
+    {do:6.82,temp:26.3,ph:7.82,sal:28.5,nh3:0.05,nitrite:0.02},
+    {do:6.51,temp:26.8,ph:7.90,sal:29.1,nh3:0.08,nitrite:0.03},
+    {do:7.10,temp:25.9,ph:7.65,sal:27.8,nh3:0.12,nitrite:0.04},
+    {do:6.93,temp:26.5,ph:7.88,sal:28.9,nh3:0.06,nitrite:0.02}
+  ];
+
+  // Expanded device data per pond
+  const DEVICES = [
+    [
+      {name:'增氧机 #1',status:'running',loc:'1号塘'},
+      {name:'增氧机 #2',status:'running',loc:'1号塘'},
+      {name:'水泵',status:'running',loc:'1号塘'},
+      {name:'投料机',status:'standby',loc:'1号塘'},
+      {name:'照明灯',status:'off',loc:'1号塘'},
+      {name:'温控设备',status:'fault',loc:'1号塘'},
+      {name:'溶氧传感器',status:'running',loc:'1号塘'},
+      {name:'pH传感器',status:'running',loc:'1号塘'}
+    ],
+    [
+      {name:'增氧机 #1',status:'running',loc:'2号塘'},
+      {name:'水泵',status:'running',loc:'2号塘'},
+      {name:'投料机',status:'running',loc:'2号塘'},
+      {name:'照明灯',status:'off',loc:'2号塘'},
+      {name:'温控设备',status:'running',loc:'2号塘'},
+      {name:'氨氮传感器',status:'running',loc:'2号塘'},
+      {name:'浊度传感器',status:'running',loc:'2号塘'}
+    ],
+    [
+      {name:'增氧机 #1',status:'running',loc:'3号塘'},
+      {name:'增氧机 #2',status:'standby',loc:'3号塘'},
+      {name:'水泵',status:'running',loc:'3号塘'},
+      {name:'投料机',status:'off',loc:'3号塘'},
+      {name:'照明灯',status:'off',loc:'3号塘'},
+      {name:'温控设备',status:'running',loc:'3号塘'},
+      {name:'ORP传感器',status:'running',loc:'3号塘'},
+      {name:'盐度传感器',status:'running',loc:'3号塘'}
+    ],
+    [
+      {name:'增氧机 #1',status:'running',loc:'4号塘'},
+      {name:'水泵',status:'running',loc:'4号塘'},
+      {name:'投料机',status:'running',loc:'4号塘'},
+      {name:'照明灯',status:'off',loc:'4号塘'},
+      {name:'温控设备',status:'running',loc:'4号塘'},
+      {name:'TDS传感器',status:'running',loc:'4号塘'},
+      {name:'水位传感器',status:'running',loc:'4号塘'}
+    ]
+  ];
+
+  // Extra sensor params per pond (turbidity, ORP, TDS)
+  const EXTRA_SENSORS = [
+    {turbidity:3.2,orp:185,tds:425},
+    {turbidity:4.1,orp:192,tds:438},
+    {turbidity:2.8,orp:178,tds:412},
+    {turbidity:3.6,orp:188,tds:430}
+  ];
+  const TIMES = ['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
+  const DO_DATA = [6.35,6.08,6.21,6.55,6.82,7.00,6.88,6.72,6.95,7.10,6.80,6.50];
+
+  const ICONS = {
+    do:'<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="9" stroke-width="1.6" fill="rgba(2,136,209,0.04)"/><path d="M14 7v14M10 13l4-4 4 4" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    temp:'<svg viewBox="0 0 28 28"><rect x="12" y="2" width="4" height="16" rx="2" stroke-width="1.4"/><circle cx="14" cy="22" r="5" stroke-width="1.4"/><path d="M14 19v6M12 22h4" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    ph:'<svg viewBox="0 0 28 28"><path d="M5 13l5-7 4 7 4-7 5 7" stroke-width="1.4" fill="none" stroke-linejoin="round"/><path d="M5 17h18M5 20h14" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    sal:'<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="9" stroke-width="1.4"/><path d="M14 8v12M10 13l4-3 4 3" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    nh3:'<svg viewBox="0 0 28 28"><text x="14" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="rgba(239,108,0,0.08)">NH</text><text x="21" y="12" text-anchor="middle" font-size="6" font-weight="700" fill="rgba(239,108,0,0.08)">3</text></svg>',
+    nitrite:'<svg viewBox="0 0 28 28"><text x="14" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="rgba(211,47,47,0.08)">NO</text><text x="21" y="11" text-anchor="middle" font-size="6" font-weight="700" fill="rgba(211,47,47,0.08)">2</text></svg>'
+  };
+
+  let currLoc = 0, currParam = null;
+  let chartInst = {}, mapInst = {};
+
+  function buildParams(idx) {
+    const g = document.getElementById('paramsGridTop');
+    if (!g) return;
+    const d = DATA_LOC[idx];
+    g.innerHTML = PARAMS.map((p,i)=>`
+      <div class="param-card param-${p.key} ${currParam===i?'active':''}" onclick="showDetail(${i})">
+        <div class="p-icon" style="height:30px;">${ICONS[p.key]}</div>
+        <div class="p-label">${p.label}</div>
+        <div class="p-value">${d[p.key]}</div>
+        <div class="p-unit">${p.unit}</div>
+        <div class="p-status ok"><span class="dot"></span>${t('normal')}</div>
+        <div class="p-loc">${LOCATIONS[idx].id}</div>
+      </div>`).join('');
+  }
+
+  function showDetail(idx) {
+    currParam = idx;
+    const p = PARAMS[idx];
+    document.querySelectorAll('.param-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+    document.getElementById('detailTitle').innerHTML = ` ${p.label} · ${LOCATIONS[currLoc].name} 历史采集数据`;
+    const rows = TIMES.map((t,i)=>{
+      const val = p.key==='do'?DO_DATA[i]:(p.key==='temp'?(25+Math.random()*2).toFixed(1):(7+Math.random()).toFixed(2));
+      return `<tr><td>2026-05-20 ${t}</td><td>${val}</td><td>${p.unit}</td><td>${LOCATIONS[currLoc].name}</td><td><span class="tag ok">正常</span></td></tr>`;
+    }).join('');
+    document.getElementById('detailTable').innerHTML = `<thead><tr><th>采集时间</th><th>数值</th><th>单位</th><th>采集位置</th><th>状态</th></tr></thead><tbody>${rows}</tbody>`;
+    document.getElementById('detailPanel').classList.add('open');
+  }
+  function closeDetail(){ document.getElementById('detailPanel').classList.remove('open');document.querySelectorAll('.param-card').forEach(c=>c.classList.remove('active'));currParam=null; }
+
+  function buildWaterPage(idx) {
+    const d = DATA_LOC[idx];
+    document.getElementById('waterList').innerHTML = PARAMS.map((p,i)=>`
+      <div class="water-row" onclick="showWaterDetail(${i})">
+        <div class="w-left"><div class="w-dot" style="background:${p.color}"></div><div><div class="w-name">${p.label}</div><div class="w-range">${p.unit} · ${LOCATIONS[idx].name}</div></div></div>
+        <div style="display:flex;align-items:center;gap:12px;"><span class="w-val" style="color:${p.color}">${d[p.key]}</span><span class="w-status">正常</span></div>
+      </div>`).join('');
+  }
+  function showWaterDetail(idx) {
+    const p = PARAMS[idx];
+    document.getElementById('detailTitle1').innerHTML = ` ${p.label} · ${LOCATIONS[currLoc].name} 采集记录`;
+    const rows = TIMES.map((t,i)=>{
+      const val = p.key==='do'?DO_DATA[i]:(5+Math.random()*3).toFixed(2);
+      return `<tr><td>2026-05-20 ${t}</td><td>${val}</td><td>${p.unit}</td><td>${LOCATIONS[currLoc].name}</td><td><span class="tag ok">正常</span></td></tr>`;
+    }).join('');
+    document.getElementById('detailTable1').innerHTML = `<thead><tr><th>时间</th><th>数值</th><th>单位</th><th>位置</th><th>状态</th></tr></thead><tbody>${rows}</tbody>`;
+    document.getElementById('detailPanel1').classList.add('open');
+  }
+
+  function buildDeviceList(idx) {
+    const devices = DEVICES[idx];
+    const stats = {running:0,standby:0,fault:0,off:0};
+    devices.forEach(d => { if (d.status === 'running') stats.running++; else if (d.status === 'standby') stats.standby++; else if (d.status === 'fault') stats.fault++; else stats.off++; });
+
+    document.getElementById('devicePondLabel').textContent = LOCATIONS[idx].name;
+    document.getElementById('deviceStatsRow').innerHTML = `
+      <div style="flex:1;text-align:center;background:#f5faff;border-radius:6px;padding:8px 4px;">
+        <div style="font-size:18px;font-weight:700;color:#4caf50;">${stats.running}</div>
+        <div style="font-size:9px;color:#90a4ae;">${t('running')}</div>
+      </div>
+      <div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px 4px;border:1px solid #e4e9f2;">
+        <div style="font-size:18px;font-weight:700;color:#ff9800;">${stats.standby}</div>
+        <div style="font-size:9px;color:#90a4ae;">${t('standby')}</div>
+      </div>
+      <div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px 4px;border:1px solid #e4e9f2;">
+        <div style="font-size:18px;font-weight:700;color:#f44336;">${stats.fault}</div>
+        <div style="font-size:9px;color:#90a4ae;">${t('fault')}</div>
+      </div>
+      <div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px 4px;border:1px solid #e4e9f2;">
+        <div style="font-size:18px;font-weight:700;color:#90a4ae;">${stats.off}</div>
+        <div style="font-size:9px;color:#90a4ae;">${t('off')}</div>
+      </div>
+    `;
+    document.getElementById('deviceListContainer').innerHTML = devices.map(d => {
+      const colorMap = {running:'#4caf50',standby:'#ff9800',fault:'#f44336',off:'#9e9e9e'};
+      const bgMap = {running:'#f5faff',standby:'#fff8e1',fault:'#ffebee',off:'#f5f5f5'};
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:${bgMap[d.status]};border-radius:5px;border-left:3px solid ${colorMap[d.status]};">
+        <span style="font-size:11px;flex:1;color:#37474f;">${d.name}</span>
+        <span style="font-size:10px;color:${colorMap[d.status]};">${t(d.status)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function switchLoc(idx) {
+    currLoc = idx;
+    document.querySelectorAll('#locBar .loc-btn,#locBar1 .loc-btn,#mapPondBtns .map-pond-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+    document.querySelectorAll('.loc-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+    buildParams(idx); buildWaterPage(idx); buildDeviceList(idx);
+    if(currParam!==null&&document.getElementById('detailPanel').classList.contains('open')) showDetail(currParam);
+    if(mapInst.main){
+      mapInst.main.eachLayer(l=>{
+        if(l instanceof L.Marker){
+          l.setStyle({color:'#90a4ae',fillColor:'#fff'});
+          if(l.getElement()) {
+            const el = l.getElement();
+            el.style.setProperty('--pulse-color','transparent');
+            el.style.animation = 'none';
+          }
+        }
+      });
+      mapInst.main.eachLayer(l=>{
+        if(l instanceof L.Marker&&l.options.pondIdx===idx){
+          l.setStyle({color:'#0288d1',fillColor:'#0288d1'});
+          l.openPopup();
+          if(l.getElement()) {
+            const el = l.getElement();
+            el.style.setProperty('--pulse-color','rgba(2,136,209,0.3)');
+          }
+        }
+      });
+    }
+  }
+
+  function highlightMapPond(idx) {
+    switchLoc(idx);
+    document.querySelectorAll('#mapPondBtns .map-pond-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  }
+
+  // ===== I18N =====
+  let LANG = 'zh';
+  const I18N = {
+    zh: {
+      nav0:'总览仪表盘',nav1:'水质监测',nav2:'设备控制',nav3:'视频监控',nav4:'历史数据',nav5:'设备绑定',nav6:'报警设置',nav7:'账号管理',
+      platform:'智慧水产养殖平台',subtitle:'海南世电科技有限公司',admin:'管理员',traffic:'剩余流量',days:'天',
+      p0title:' 养殖实时总览',p0sub:'数据更新: 2026-05-20 08:30 · 传感器在线率 98.6%',
+      p1title:' 水质监测 · 实时数据',p1sub:'传感器每30秒自动上报',
+      p2title:' 设备远程控制',p2sub:'远程启停 · 参数设置 · 定时任务',
+      p3title:' 视频监控 · 实时画面',p3sub:'视频监控调取数据点位可选',
+      p4title:' 历史数据查询',p4sub:'数据保存2个月 · 支持筛选与导出',
+      p5title:' 设备绑定设置',p5sub:'网关绑定 · 监测箱绑定 · 报警阈值',
+      p6title:' 报警设置 · 通知管理',p6sub:'短信/邮箱/电话多通道报警',
+      p7title:' 账号管理',p7sub:'用户管理 · 权限分级 · 操作记录',
+      wq:'实时水质参数',click:'（点击查看采集详情）',trend:'水质参数变化趋势',d24h:'近24h',
+      bi:'基本信息',farm:'基地名称',area:'养殖面积',stock:'当前存塘量',feed:'今日投喂',sensor:'传感器在线',
+      growth:'生长曲线',d30:'近30日',feeding:'饲料投喂',today:'今日',plan:'计划(kg)',done:'完成(kg)',rate:'完成率',
+      monitor:'实时监控',wq:'实时水质参数',click:'（点击查看详情）',detail_title:' 溶解氧 · 历史采集数据',
+      summary:'监测参数概况',smart_dev:'智能控制设备',online_n:'台在线',running:'运行中',standby:'待机',stopped:'已停机',fault:'故障',
+      dev_list:'设备清单',aerator:'打氧机',light:'照明灯',temp_ctrl:'温控设备',off:'已关闭',
+      wq_data:'采集数据详情',
+      aerator_ctrl:'增氧机',pump:'水泵',feeder:'投料机',lighting:'照明',temp_adj:'温度调节',light_ctrl:'灯控',
+      status:'状态',timing:'定时',action:'操作',start:'启动',stop:'停止',mode:'模式',inlet:'进水',outlet:'排水',exec:'执行',
+      feed_amt:'投喂量',target:'目标',set:'设定',brightness:'亮度',
+      cam_list:'摄像头设备列表',online:'在线',offline:'离线',
+      hist_records:'记录列表',time:'时间',pond:'塘口',all:'全部参数',to:'至',query:'查询',export:'导出表格',
+      gateway:'网关绑定',gateway_id:'网关编号',bound:'已绑定',sensor_pts:'传感器点位',edit:'编辑',sensor_types:'传感器类型',
+      box_bind:'水质监测箱绑定',box_id:'监测箱编号',collect_order:'采集顺序',shared:'共用传感器方案已启用',
+      alarm_threshold:'设备报警阈值设定',do_min:'溶解氧下限',temp_max:'温度上限',ph_range:'pH 范围',nh3_max:'氨氮上限',nitrite_max:'亚硝酸盐上限',save:'保存设置',
+      alarm_notify:'报警通知配置',sms:'短信报警',bind_phone:'绑定手机',backup_phone:'备用手机',email:'邮箱报警',phone:'电话报警',
+      alarm_records:'近期报警记录',
+      acct_mgmt:'账号管理',cur_acct:'当前账号信息',username:'用户名',role:'角色',traffic_remain:'剩余流量',func_auth:'功能授权',chg_pwd:'修改密码',
+      sub_acct:'子账号管理',acct:'账号',name:'姓名',perm:'权限',disable:'禁用',add_sub:'+ 添加子账号',
+      op_log:'操作记录',
+      collect_record:'采集记录',collect_time:'采集时间',value:'数值',unit:'单位',location:'位置',normal:'正常',
+      table_time:'时间',table_val:'数值',table_unit:'单位',table_loc:'位置',table_status:'状态',
+    },
+    en: {
+      nav0:'Dashboard',nav1:'Water Quality',nav2:'Device Control',nav3:'Video Monitor',nav4:'History',nav5:'Device Binding',nav6:'Alarm Settings',nav7:'Account',
+      brand:'WEST',subtitle:'Hainan World Electronic Science and Techology Co.,Ltd.',admin:'Admin',traffic:'Traffic',days:'days',
+      p0title:' Live Overview',p0sub:'Updated: 2026-05-20 08:30 · Sensor Online 98.6%',
+      p1title:' Water Quality · Real-time',p1sub:'Auto-report every 30s',
+      p2title:' Remote Control',p2sub:'Start/Stop · Parameter · Schedule',
+      p3title:' Video Surveillance · Live',p3sub:'Camera feeds available for selection',
+      p4title:' History Query',p4sub:'2-month retention · Filter & Export',
+      p5title:' Device Binding',p5sub:'Gateway · Monitor Box · Thresholds',
+      p6title:' Alarm Notification',p6sub:'SMS/Email/Call multi-channel',
+      p7title:' Account Management',p7sub:'Users · Roles · Audit Logs',
+      wq:'Water Quality',click:'(click for details)',trend:'Water Quality Trend',d24h:'Last 24h',
+      bi:'Basic Info',farm:'Farm Name',area:'Area (mu)',stock:'Stock (ton)',feed:'Feed (kg)',sensor:'Sensors Online',
+      growth:'Growth Curve',d30:'Last 30d',feeding:'Feeding',today:'Today',plan:'Plan (kg)',done:'Done (kg)',rate:'Rate',
+      monitor:'Live Camera',wq:'Water Quality',click:'(click for details)',detail_title:' History Data',
+      summary:'Parameter Summary',smart_dev:'Smart Devices',online_n:' online',running:'Running',standby:'Standby',stopped:'Stopped',fault:'Fault',
+      dev_list:'Devices',aerator:'Aerator',light:'Lamp',temp_ctrl:'Temp Control',off:'Off',
+      wq_data:'Collection Details',
+      aerator_ctrl:'Aerator',pump:'Water Pump',feeder:'Feeder',lighting:'Lighting',temp_adj:'Temp Control',light_ctrl:'Light Control',
+      status:'Status',timing:'Schedule',action:'Action',start:'Start',stop:'Stop',mode:'Mode',inlet:'Inlet',outlet:'Outlet',exec:'Execute',
+      feed_amt:'Amount',target:'Target',set:'Set',brightness:'Brightness',
+      cam_list:'Camera List',online:'Online',offline:'Offline',
+      hist_records:'Records',time:'Time',pond:'Pond',all:'All Params',to:'to',query:'Search',export:'Export CSV',
+      gateway:'Gateway Binding',gateway_id:'Gateway ID',bound:'Bound',sensor_pts:'Sensor Points',edit:'Edit',sensor_types:'Sensor Types',
+      box_bind:'Monitor Box',box_id:'Box ID',collect_order:'Collection Order',shared:'Multi-pond sharing enabled',
+      alarm_threshold:'Alarm Thresholds',do_min:'DO Min',temp_max:'Temp Max',ph_range:'pH Range',nh3_max:'NH₃ Max',nitrite_max:'NO₂ Max',save:'Save',
+      alarm_notify:'Notification Config',sms:'SMS Alert',bind_phone:'Primary Phone',backup_phone:'Backup Phone',email:'Email Alert',phone:'Call Alert',
+      alarm_records:'Recent Alarms',
+      acct_mgmt:'Account Mgmt',cur_acct:'Current Account',username:'Username',role:'Role',traffic_remain:'Traffic Remaining',func_auth:'Permissions',chg_pwd:'Change Password',
+      sub_acct:'Sub Accounts',acct:'Account',name:'Name',perm:'Permissions',disable:'Disable',add_sub:'+ Add Sub-account',
+      op_log:'Operation Logs',
+      collect_record:'Collection Records',collect_time:'Time',value:'Value',unit:'Unit',location:'Location',normal:'Normal',
+      table_time:'Time',table_val:'Value',table_unit:'Unit',table_loc:'Loc',table_status:'Status',
+    }
+  };
+
+  function t(key) { return I18N[LANG][key] || I18N.zh[key] || key; }
+
+  // Comprehensive phrase-based translation for text nodes without data-i18n
+  const zhPhrases = [
+    // Page 0 - dashboard
+    ['塘口分布地图','Pond Map'], ['设备统计与清单','Device Stats & List'],
+    ['运行中','Running'], ['待机','Standby'], ['故障','Fault'],
+    ['打氧机 #1','Aerator #1'], ['打氧机 #2','Aerator #2'], ['水泵','Water Pump'], ['投料机','Feeder'],
+    ['照明灯','Lamp'], ['温控设备','Temp Control'], ['已关闭','Off'], ['已停机','Stopped'],
+    ['养殖概况','Farm Overview'], ['基地名称','Farm Name'], ['海南世东水产','Hainan Shidong Aqua'],
+    ['养殖面积','Area'], ['亩','mu'], ['当前存塘量','Stock'], ['吨','ton'],
+    ['今日投喂','Feed Today'], ['计划(kg)','Plan(kg)'], ['完成(kg)','Done(kg)'], ['完成率','Rate'],
+    ['生长曲线','Growth Curve'], ['近30日','Last 30d'], ['饲料投喂','Feeding'], ['今日','Today'],
+    ['传感器在线','Sensors Online'],
+    // Page 2 - device
+    ['增氧机','Aerator'], ['照明','Lighting'], ['灯控','Light Control'],
+    ['温度调节','Temp Control'], ['状态','Status'], ['定时','Schedule'],
+    ['操作','Action'], ['启动','Start'], ['停止','Stop'],
+    ['模式','Mode'], ['进水','Inlet'], ['排水','Outlet'], ['执行','Execute'],
+    ['投喂量','Amount'], ['目标','Target'], ['设定','Set'], ['亮度','Brightness'],
+    ['恒温','Temp Control'], [' 运行中 1200rpm',' Running 1200rpm'],
+    [' 进水模式',' Inlet Mode'], [' 已停机',' Stopped'], [' 已关闭',' Off'],
+    // Page 3 - video
+    ['摄像头设备列表','Camera List'], ['在线','Online'], ['离线','Offline'],
+    ['全景','Panorama'], ['东侧','East'], ['西侧','West'],
+    // Page 4 - history
+    ['全部参数','All Params'], ['至','to'], ['查询','Search'], ['导出表格','Export CSV'],
+    ['记录列表','Records'], ['条','records'],
+    ['时间','Time'], ['塘口','Pond'], ['溶解氧','DO'], ['水温','Temp'],
+    ['pH','pH'], ['氨氮','NH₃'], ['亚硝酸盐','NO₂'],
+    // Page 5 - binding
+    ['网关编号','Gateway ID'], ['已绑定','Bound'], ['传感器点位','Sensor Points'],
+    ['编辑','Edit'], ['传感器类型','Sensor Types'],
+    ['监测箱编号','Box ID'], ['采集顺序','Collection Order'],
+    ['共用传感器','Shared Sensor'], ['多个塘口共用方案已启用','Multi-pond sharing enabled'],
+    ['溶解氧下限','DO Min'], ['温度上限','Temp Max'], ['pH 范围','pH Range'],
+    ['氨氮上限','NH₃ Max'], ['亚硝酸盐上限','NO₂ Max'], ['保存设置','Save'],
+    // Page 6 - alarm
+    ['短信报警','SMS Alert'], ['绑定手机','Primary Phone'], ['备用手机','Backup Phone'],
+    ['邮箱报警','Email Alert'], ['电话报警','Call Alert'],
+    // Page 7 - account
+    ['用户名','Username'], ['角色','Role'], ['剩余流量','Traffic'],
+    ['功能授权','Permissions'], ['修改密码','Change Pwd'],
+    ['账号','Account'], ['姓名','Name'], ['权限','Permissions'],
+    ['禁用','Disable'], ['+ 添加子账号','+ Add Sub-account'],
+    ['操作记录','Operation Logs'],
+    // Common
+    ['1号塘','Pond 1'], ['2号塘','Pond 2'], ['3号塘','Pond 3'], ['4号塘','Pond 4'],
+    ['1号塘口','Pond 1'], ['2号塘口','Pond 2'], ['3号塘口','Pond 3'],
+    ['通知','Notifications'],
+    // New device/sensor terms
+    ['增氧机 #2','Aerator #2'], ['溶氧传感器','DO Sensor'], ['pH传感器','pH Sensor'],
+    ['氨氮传感器','NH₃ Sensor'], ['浊度传感器','Turbidity'], ['ORP传感器','ORP Sensor'],
+    ['盐度传感器','Salinity'], ['TDS传感器','TDS Sensor'], ['水位传感器','Water Level'],
+    ['塘口分布地图','Pond Map'], ['设备清单','Device List'],
+  ];
+  // Build reverse map (en->zh)
+  const enPhrases = zhPhrases.map(([zh, en]) => [en, zh]);
+
+  function replaceTextNodes(root, phrases) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    const replacements = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (!node.parentElement || node.parentElement.closest('script,style,svg,canvas,input,select,textarea,[data-i18n]')) continue;
+      let text = node.textContent;
+      let changed = false;
+      for (const [from, to] of phrases) {
+        if (text.includes(from)) { text = text.replaceAll(from, to); changed = true; }
+      }
+      if (changed) replacements.push([node, text]);
+    }
+    for (const [node, text] of replacements) node.textContent = text;
+  }
+
+  function toggleLang() {
+    LANG = LANG === 'zh' ? 'en' : 'zh';
+    document.getElementById('htmlRoot').lang = LANG === 'zh' ? 'zh-CN' : 'en';
+    document.querySelector('[data-i18n-toggle]').textContent = LANG === 'zh' ? 'EN' : 'CN';
+
+    // 1. Update data-i18n elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (I18N[LANG][key]) el.textContent = I18N[LANG][key];
+    });
+
+    // 2. DOM text node walk for all remaining text
+    const phrases = LANG === 'en' ? zhPhrases : enPhrases;
+    document.querySelectorAll('.page,.topbar,.sidebar').forEach(root => replaceTextNodes(root, phrases));
+
+    // 3. Update topbar title
+    const activeIdx = Array.from(navItems).findIndex(n => n.classList.contains('active'));
+    document.getElementById('pageTitle').textContent = t('nav' + activeIdx);
+
+    // 4. Close detail panels to avoid stale content
+    closeDetail();
+    document.getElementById('detailPanel1').classList.remove('open');
+
+    // 5. Batch chart rebuild in next frame
+    requestAnimationFrame(() => {
+      buildParams(currLoc); buildWaterPage(currLoc); buildDeviceList(currLoc);
+      initGrowthChart(); initHistChart(); initDashTrendChart();
+      if (mapInst.main) mapInst.main.invalidateSize();
+    });
+  }
+
+  const pageNames = [t('nav0'),t('nav1'),t('nav2'),t('nav3'),t('nav4'),t('nav5'),t('nav6'),t('nav7')];
+  const navItems = document.querySelectorAll('#sidebarNav a');
+  const pages = document.querySelectorAll('.page');
+  const titleEl = document.getElementById('pageTitle');
+
+  function switchPage(idx) {
+    if (idx === currentPage) return;
+    currentPage = idx;
+    navItems.forEach(n=>n.classList.remove('active'));
+    navItems[idx].classList.add('active');
+    pages.forEach((p,i)=>{
+      p.classList.toggle('active',i===idx);
+    });
+    titleEl.textContent = t('nav'+idx);
+    requestAnimationFrame(()=>{
+      if(idx===0){initMap('pondMap','main',true);initDashTrendChart();}
+      if(idx===4) initHistChart();
+    });
+  }
+  let currentPage = 0;
+  navItems.forEach(a=>a.addEventListener('click',()=>switchPage(parseInt(a.dataset.page))));
+
+  function initMap(cid,key,pop) {
+    if(mapInst[key]){mapInst[key].invalidateSize();return;}
+    const m = L.map(cid,{zoomControl:false,attributionControl:false}).setView([20.0225,110.354],15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(m);
+    mapInst[key]=m;const bnd=[];
+    LOCATIONS.forEach((l,i)=>{
+      bnd.push([l.lat,l.lng]);
+      const a=i===currLoc;
+      const mk=L.circleMarker([l.lat,l.lng],{radius:9,pondIdx:i,color:a?'#0288d1':'#90a4ae',fillColor:a?'#0288d1':'#fff',fillOpacity:.8,weight:2}).addTo(m);
+      const d=DATA_LOC[i];
+      const ex=EXTRA_SENSORS[i];
+      mk.bindPopup(`<b>${l.name}</b><br>${l.id}<br>DO:${d.do} | pH:${d.ph} | T:${d.temp}°C<br>NH₃:${d.nh3} | 浊度:${ex.turbidity}NTU | ORP:${ex.orp}mV`);
+      mk.on('click',()=>{highlightMapPond(i);});
+      if(pop&&a) setTimeout(()=>mk.openPopup(),300);
+
+      // Pulse ring overlay via CSS pseudo on marker element
+      mk.on('add', function(){
+        const el = this.getElement();
+        if(el){
+          el.style.background = 'transparent';
+          el.style.borderRadius = '50%';
+          el.style.boxShadow = a ? '0 0 0 0 rgba(2,136,209,0.4)' : 'none';
+          if(a) {
+            el.style.animation = 'mapPulse 2s infinite';
+          }
+        }
+      });
+    });
+
+    // Inject pulse keyframes if not already present
+    if(!document.getElementById('mapPulseStyle')){
+      const s = document.createElement('style');
+      s.id = 'mapPulseStyle';
+      s.textContent = '@keyframes mapPulse{0%{box-shadow:0 0 0 0 rgba(2,136,209,0.4)}70%{box-shadow:0 0 0 12px rgba(2,136,209,0)}100%{box-shadow:0 0 0 0 rgba(2,136,209,0)}}';
+      document.head.appendChild(s);
+    }
+
+    if(bnd.length) m.fitBounds(bnd,{padding:[30,30],maxZoom:16});
+  }
+
+  // Map pond button wiring
+  document.querySelectorAll('#mapPondBtns .map-pond-btn').forEach(b=>{
+    b.addEventListener('click',()=>highlightMapPond(parseInt(b.dataset.midx)));
+  });
+
+  function mkChart(id,labels,datasets,opts) {
+    const c=document.getElementById(id);
+    if(!c) return;
+    if(chartInst[id]){chartInst[id].destroy();chartInst[id]=null;}
+    const ctx=c.getContext('2d');
+    if(!ctx) return;
+    chartInst[id]=new Chart(ctx,{type:'line',data:{labels,datasets},options:Object.assign({responsive:true,maintainAspectRatio:false,resizeDelay:200,animation:{duration:200},plugins:{legend:{labels:{color:'#607d8b',font:{size:10},boxWidth:12}}},scales:{x:{ticks:{color:'#90a4ae',font:{size:8}},grid:{color:'#eceff1'}},y:{ticks:{color:'#90a4ae',font:{size:8}},grid:{color:'#eceff1'}}}},opts||{})});
+  }
+
+  function initGrowthChart() { mkChart('growthChart',['5/1','5/5','5/10','5/15','5/20'],[{label:LANG==='zh'?'均重(g)':'Avg Wt (g)',data:[120,135,155,178,195],borderColor:'#0288d1',backgroundColor:'rgba(2,136,209,0.04)',fill:true,tension:.3,pointRadius:2}]); }
+  function initHistChart() { mkChart('historyChart',['5/14','5/15','5/16','5/17','5/18','5/19','5/20'],[{label:LANG==='zh'?'溶解氧':'DO',data:[6.5,6.8,6.2,6.7,7.0,6.6,6.8],borderColor:'#0288d1',tension:.3,fill:true,backgroundColor:'rgba(2,136,209,0.04)',pointRadius:3},{label:LANG==='zh'?'均值':'Avg',data:[6.6,6.7,6.6,6.7,6.8,6.7,6.7],borderColor:'#90a4ae',borderDash:[4,4],tension:.2,pointRadius:0}]); }
+  function initDashTrendChart() {
+    const doL = LANG==='zh'?'溶解氧':'DO';
+    const tempL = LANG==='zh'?'温度':'Temp';
+    const labels = ['0时','2时','4时','6时','8时','10时','12时','14时','16时','18时','20时','22时'];
+    const enLabels = ['00','02','04','06','08','10','12','14','16','18','20','22'];
+    mkChart('dashTrendChart', LANG==='zh'?labels:enLabels, [
+      {label:doL, data:[6.2,6.5,6.8,7.0,6.9,6.7,6.5,6.8,7.1,6.9,6.6,6.4], borderColor:'#0288d1', backgroundColor:'rgba(2,136,209,0.04)', fill:true, tension:.3, pointRadius:2},
+      {label:tempL, data:[25.8,25.6,25.5,25.8,26.3,26.8,27.1,27.0,26.6,26.3,26.0,25.9], borderColor:'#ff7043', backgroundColor:'transparent', tension:.3, pointRadius:2, yAxisID:'y1'}
+    ], { scales:{ x:{ ticks:{ color:'#90a4ae', font:{ size:8 } }, grid:{ color:'#eceff1' } }, y:{ ticks:{ color:'#90a4ae', font:{ size:8 } }, grid:{ color:'#eceff1' } }, y1:{ position:'right', ticks:{ color:'#90a4ae', font:{ size:8 } }, grid:{ display:false } } } });
+  }
+
+  document.querySelectorAll('#locBar .loc-btn,#locBar1 .loc-btn').forEach(b=>b.addEventListener('click',()=>switchLoc(parseInt(b.dataset.loc))));
+
+  function updClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false});}
+  updClock();setInterval(updClock,1000);
+
+  buildParams(0); buildWaterPage(0); buildDeviceList(0); initGrowthChart();
+  requestAnimationFrame(()=>{initDashTrendChart();initMap('pondMap','main',true);});
+</script>
+</body>
+</html>
