@@ -405,6 +405,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
     <div class="handle"></div>
     <span class="d-close" onclick="closeMDetail()">✕</span>
     <div class="d-title" id="mDetailTitle" data-i18n-t="detail">详情</div>
+    <div class="chart-box" style="margin-bottom:6px;padding:6px;"><div class="chart-container" style="height:100px;"><canvas id="detailChart"></canvas></div></div>
+    <div style="font-size:11px;color:#90a4ae;margin-bottom:3px;" data-i18n-t="recordList">记录列表</div>
     <div style="overflow-x:auto;"><table id="mDetailTable"></table></div>
   </div>
 
@@ -525,9 +527,11 @@ const I18N={
   statusFault:{cn:'故障',en:'Fault'},
   deviceRelated:{cn:' 相关指标',en:' Related Indicators'},
   goControl:{cn:'前往控制',en:'Go Control'},
+  status:{cn:'状态',en:'Status'},
   closeLabel:{cn:'关闭',en:'Close'},
   collectRecord:{cn:'采集记录',en:'Collection Record'},
   normal:{cn:'正常',en:'Normal'},
+  abnormal:{cn:'异常',en:'Abnormal'},
   doLabel:{cn:'溶解氧',en:'DO'},
   tempLabel:{cn:'水温',en:'Temp'},
   phLabel:{cn:'pH值',en:'pH'},
@@ -611,7 +615,7 @@ const SVG={
   nitrite:'<svg viewBox="0 0 22 22"><text x="11" y="15" text-anchor="middle" font-size="8" font-weight="700" fill="rgba(211,47,47,0.08)">NO</text><text x="17" y="9" text-anchor="middle" font-size="5" font-weight="700" fill="rgba(211,47,47,0.08)">2</text></svg>'
 };
 
-let curLoc=0, homeChart=null, histChart=null, mapInstance=null, mapMarkers=[];
+let curLoc=0, homeChart=null, histChart=null, detailChart=null, mapInstance=null, mapMarkers=[];
 
 function buildHomeParams(loc){
   const g=document.getElementById('homeParamGrid');
@@ -705,18 +709,46 @@ document.querySelectorAll('#homeLocStrip .loc-chip').forEach(c=>c.addEventListen
 document.querySelectorAll('#waterLocStrip .loc-chip').forEach(c=>c.addEventListener('click',()=>{const i=parseInt(c.dataset.idx);switchLoc(i);buildWaterParams(i);}));
 document.querySelectorAll('#devLocStrip .loc-chip').forEach(c=>c.addEventListener('click',()=>{const i=parseInt(c.dataset.idx);switchLoc(i);buildDevicePanels(i);}));
 
+function generateHistoryData(key,days){
+  const p=PARAMS.find(x=>x.key===key);if(!p)return[];
+  const base=DATA_LOC[curLoc][key];
+  const out=[];
+  const now=new Date();
+  for(let d=days-1;d>=0;d--){
+    const date=new Date(now);
+    date.setDate(date.getDate()-d);
+    const dateStr=`${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const dailyVal=base+(Math.random()-0.5)*base*0.4;
+    out.push({date:dateStr,val:parseFloat(dailyVal.toFixed(2))});
+  }
+  return out;
+}
 function showDetail(key){
   const p=PARAMS.find(x=>x.key===key);if(!p)return;
+  const days=7;
+  const hist=generateHistoryData(key,days);
   document.getElementById('mDetailTitle').innerHTML=` ${p.label[curLang]} · ${LOCS[curLoc].name} ${t('collectRecord')}`;
+  const labels=hist.map(d=>d.date);
+  const values=hist.map(d=>d.val);
+  if(detailChart){detailChart.destroy();detailChart=null;}
+  const ctx=document.getElementById('detailChart').getContext('2d');
+  detailChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[{label:p.label[curLang],data:values,borderColor:p.color,backgroundColor:p.color+'18',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:p.color}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#90a4ae',font:{size:8}},grid:{color:'#eceff1'}},y:{ticks:{color:'#90a4ae',font:{size:8}},grid:{color:'#eceff1'}}}}
+  });
   document.getElementById('mDetailTable').innerHTML=
-    `<thead><tr><th>${t('time')}</th><th>${t('detail')}</th><th>${t('pond2')}</th><th>${t('normal')}</th></tr></thead><tbody>`+
-    TIMES.map((t,i)=>{
-      const v=key==='do'?DO_DATA[i]:(4+Math.random()*4).toFixed(2);
-      return `<tr><td>${t}</td><td>${v} ${p.unit}</td><td>${LOCS[curLoc].name}</td><td><span class="tag ok">${t('normal')}</span></td></tr>`;
+    `<thead><tr><th>${t('time')}</th><th>${p.unit}</th><th>${t('pond2')}</th><th>${t('status')}</th></tr></thead><tbody>`+
+    hist.map(d=>{
+      const ok=key==='nh3'?d.val<0.1:key==='nitrite'?d.val<0.03:d.val>4;
+      return `<tr><td>${d.date}</td><td>${d.val}</td><td>${LOCS[curLoc].name}</td><td><span class="tag ${ok?'ok':'warn'}">${ok?t('normal'):t('abnormal')}</span></td></tr>`;
     }).join('')+`</tbody>`;
   document.getElementById('mDetail').classList.add('open');
 }
-function closeMDetail(){document.getElementById('mDetail').classList.remove('open');}
+function closeMDetail(){
+  if(detailChart){detailChart.destroy();detailChart=null;}
+  document.getElementById('mDetail').classList.remove('open');
+}
 
 function buildWaterParams(loc){
   const l=loc!==undefined?loc:curLoc;
