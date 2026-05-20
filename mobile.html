@@ -117,7 +117,8 @@
 .param-row .p-value { font-size: 19px; font-weight: 700; font-family: monospace; }
 
   .login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 40px 24px; text-align: center; }
-  .login-page .logo-img { width: 60px; height: 60px; border-radius: 14px; margin-bottom: 6px; object-fit: cover; border: 2px solid #e4e9f2; }
+  .login-page .logo-wrap { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+  .login-page .logo-wrap img { height: 56px; width: auto; }
   .login-page .logo-text { font-size: 20px; font-weight: 700; color: #0288d1; letter-spacing: 3px; }
   .login-page .logo-sub { font-size: 13px; color: #90a4ae; margin-bottom: 24px; }
   .login-page input { width: 100%; background: #fff; border: 1px solid #e4e9f2; color: #37474f; padding: 13px 16px; border-radius: 8px; font-size: 15px; margin-bottom: 10px; outline: none; }
@@ -140,7 +141,7 @@
 <div class="app">
   <div class="status-bar"><span> 11:28</span><span> 联通 5G  98%</span></div>
   <div class="header">
-    <div><h1><span class="badge"> </span>世电科技</h1><div class="sub">海南世电科技有限公司</div></div>
+        <div style="display:flex;align-items:center;gap:8px;"><img src="海南世电_默认3-1.svg" alt="WEST" style="height:26px;width:auto;display:block;flex-shrink:0;"><div><h1>世电科技</h1><div class="sub">海南世电科技有限公司</div></div></div>
     <div class="right-icons"><span> </span><span> </span></div>
   </div>
 
@@ -248,7 +249,7 @@
     <!-- PAGE 5: 登录 -->
     <div class="page" id="page-login">
       <div class="login-page">
-        <img class="logo-img" src="https://picsum.photos/seed/aqua-login/120/120" alt="">
+        <div class="logo-wrap"><img src="海南世电_默认3-1.svg" alt="世电科技"></div>
         <div class="logo-text">世电科技</div>
         <div class="logo-sub">Smart Aquaculture Platform</div>
         <input type="text" placeholder="请输入账号" value="admin">
