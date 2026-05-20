@@ -3,247 +3,389 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>数字渔业 · APP</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
-</script>
+<title>智慧水产养殖 · APP</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 16px; background: #f0f5fe; color: #1a2a3a; overflow: hidden; height: 100vh; }
-
-  .app { height: 100vh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; position: relative; background: #f0f5fe; }
-
-  .status-bar { padding: 8px 16px 4px; display: flex; justify-content: space-between; font-size: 13px; color: #90a4ae; background: #fff; flex-shrink: 0; border-bottom: 1px solid #e4e9f2; }
-
-  .header { background: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e4e9f2; flex-shrink: 0; }
-  .header h1 { font-size: 18px; color: #0288d1; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-  .header h1 .badge { width: 20px; height: 20px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; flex-shrink: 0; }
-  .header .sub { font-size: 12px; color: #90a4ae; }
-  .header .right-icons { display: flex; gap: 14px; font-size: 18px; color: #90a4ae; }
-
-  .pages { flex: 1; overflow: hidden; position: relative; }
-  .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; background: #f0f5fe; opacity: 0; pointer-events: none; transition: opacity .25s; padding: 12px 12px 6px; }
-  .page.active { opacity: 1; pointer-events: auto; }
-  .page::-webkit-scrollbar { width: 3px; }
-  .page::-webkit-scrollbar-thumb { background: #cfd8dc; border-radius: 2px; }
-
-  .hero-img { width: 100%; height: 80px; object-fit: cover; border-radius: 10px; display: block; margin-bottom: 10px; border: 1px solid #e4e9f2; }
-
-  .greeting { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-  .greeting .name { font-size: 18px; font-weight: 600; color: #1a2a3a; }
-  .greeting .name small { font-weight: 400; color: #90a4ae; font-size: 12px; }
-  .greeting .loc { font-size: 12px; color: #90a4ae; margin-top: 1px; }
-  .greeting .avatar { width: 32px; height: 32px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
-
-  .sec-title { font-size: 14px; font-weight: 600; color: #546e7a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-
-  .loc-strip { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; }
-  .loc-strip::-webkit-scrollbar { height: 2px; }
-  .loc-strip::-webkit-scrollbar-thumb { background: #cfd8dc; border-radius: 1px; }
-  .loc-chip { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: #fff; border: 1px solid #e4e9f2; border-radius: 14px; font-size: 13px; color: #607d8b; white-space: nowrap; cursor: pointer; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,.02); }
-  .loc-chip .dot { width: 5px; height: 5px; border-radius: 50%; background: #cfd8dc; flex-shrink: 0; }
-  .loc-chip.active { background: #e3f2fd; border-color: #29b6f6; color: #01579b; }
-  .loc-chip.active .dot { background: #29b6f6; box-shadow: 0 0 4px rgba(41,182,246,.4); }
-  .loc-chip .gps { font-size: 10px; color: #90a4ae; font-family: monospace; }
-
-  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
-  .s-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
-  .s-card:active { transform: scale(.97); }
-  .s-card .s-icon { height: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
-  .s-card .s-icon svg { width: 18px; height: 18px; }
-.s-card .s-label { font-size: 12px; color: #90a4ae; }
-.s-card .s-value { font-size: 20px; font-weight: 700; font-family: monospace; margin: 2px 0; }
-.s-card .s-unit { font-size: 11px; color: #90a4ae; }
-.s-card .s-status { font-size: 11px; margin-top: 2px; color: #4caf50; }
-  .s-card.do .s-value { color: #0288d1; } .s-card.do svg * { stroke: #0288d1; fill: none; }
-  .s-card.temp .s-value { color: #ff7043; } .s-card.temp svg * { stroke: #ff7043; fill: none; }
-  .s-card.ph .s-value { color: #7b1fa2; } .s-card.ph svg * { stroke: #7b1fa2; fill: none; }
-  .s-card.sal .s-value { color: #00897b; } .s-card.sal svg * { stroke: #00897b; fill: none; }
-
-  .extra-row { display: flex; gap: 6px; margin-bottom: 10px; }
-  .extra-item { flex: 1; background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
-  .extra-item .e-icon { height: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 1px; }
-  .extra-item .e-icon svg { width: 16px; height: 16px; }
-.extra-item .e-label { font-size: 11px; color: #90a4ae; }
-.extra-item .e-value { font-size: 16px; font-weight: 700; font-family: monospace; margin: 2px 0; }
-.extra-item .e-unit { font-size: 11px; color: #90a4ae; }
-  .extra-item.nh3 .e-value { color: #ef6c00; } .extra-item.nh3 svg * { stroke: #ef6c00; fill: none; }
-  .extra-item.nitrite .e-value { color: #d32f2f; } .extra-item.nitrite svg * { stroke: #d32f2f; fill: none; }
-
-  .mini-chart-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.02); }
-  .mini-chart-box canvas { width: 100% !important; height: 70px !important; }
-
-  .device-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-  .d-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0,0,0,.02); }
-  .d-row .d-left { display: flex; align-items: center; gap: 8px; }
-  .d-row .d-icon { font-size: 16px; }
-.d-row .d-info .d-name { font-size: 14px; color: #37474f; }
-.d-row .d-info .d-desc { font-size: 12px; color: #90a4ae; }
-.d-row .d-state { font-size: 12px; padding: 3px 12px; border-radius: 10px; }
-  .d-row .d-state.on { background: #e8f5e9; color: #4caf50; }
-  .d-row .d-state.off { background: #f5f5f5; color: #9e9e9e; }
-
-  .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
-  .q-item { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; transition: .2s; box-shadow: 0 1px 2px rgba(0,0,0,.02); }
-  .q-item:active { transform: scale(.96); }
-  .q-item .q-icon { font-size: 22px; }
-  .q-item .q-label { font-size: 12px; color: #607d8b; margin-top: 2px; }
-
-.tab-bar { display: flex; background: #fff; border-top: 1px solid #e4e9f2; flex-shrink: 0; padding: 6px 0 env(safe-area-inset-bottom, 6px); }
-.tab-item { flex: 1; text-align: center; padding: 10px 0 8px; cursor: pointer; transition: .2s; }
-.tab-item .t-icon { font-size: 22px; color: #90a4ae; }
-.tab-item .t-label { font-size: 11px; color: #90a4ae; margin-top: 2px; }
-  .tab-item.active .t-icon { color: #0288d1; }
-  .tab-item.active .t-label { color: #0288d1; font-weight: 600; }
-
-  .detail-overlay { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #e4e9f2; border-radius: 14px 14px 0 0; padding: 14px 16px 20px; transition: transform .35s cubic-bezier(.4,0,.2,1); z-index: 20; box-shadow: 0 -4px 30px rgba(0,0,0,.08); }
-  .detail-overlay.open { transform: translateX(-50%) translateY(0); }
-  .detail-overlay .handle { width: 36px; height: 4px; background: #e4e9f2; border-radius: 2px; margin: 0 auto 10px; }
-  .detail-overlay .d-title { font-size: 15px; color: #37474f; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-  .detail-overlay .d-close { position: absolute; top: 12px; right: 14px; color: #90a4ae; font-size: 16px; cursor: pointer; padding: 4px; }
-  .detail-overlay table { width: 100%; border-collapse: collapse; font-size: 11px; }
-.detail-overlay th { background: #f5f7fa; color: #607d8b; padding: 8px 10px; text-align: left; border-bottom: 1px solid #eceff1; font-weight: 500; }
-.detail-overlay td { padding: 7px 10px; border-bottom: 1px solid #eceff1; color: #37474f; }
-  .detail-overlay .tag { font-size: 11px; padding: 2px 8px; border-radius: 3px; }
-  .detail-overlay .tag.ok { background: #e8f5e9; color: #4caf50; }
-  .detail-overlay .tag.warn { background: #fff3e0; color: #ff9800; }
-
-  .params-full { display: flex; flex-direction: column; gap: 6px; }
-  .param-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 11px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-  .param-row:active { background: #f5faff; }
-  .param-row .p-left { display: flex; align-items: center; gap: 8px; }
-  .param-row .p-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.param-row .p-name { font-size: 15px; color: #37474f; }
-.param-row .p-detail { font-size: 12px; color: #90a4ae; margin-top: 1px; }
-.param-row .p-value { font-size: 19px; font-weight: 700; font-family: monospace; }
-
-  .login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 40px 24px; text-align: center; }
-  .login-page .logo-wrap { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-  .login-page .logo-wrap img { height: 56px; width: auto; }
-  .login-page .logo-text { font-size: 20px; font-weight: 700; color: #0288d1; letter-spacing: 3px; }
-  .login-page .logo-sub { font-size: 13px; color: #90a4ae; margin-bottom: 24px; }
-  .login-page input { width: 100%; background: #fff; border: 1px solid #e4e9f2; color: #37474f; padding: 13px 16px; border-radius: 8px; font-size: 15px; margin-bottom: 10px; outline: none; }
-  .login-page input:focus { border-color: #29b6f6; }
-  .login-page .login-btn { width: 100%; padding: 13px; background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
-  .login-page .links { margin-top: 12px; display: flex; justify-content: space-between; width: 100%; font-size: 11px; color: #90a4ae; }
-
-  .profile-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-  .profile-card .p-avatar { width: 42px; height: 42px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; margin: 0 auto 6px; }
-.profile-card .pname { font-size: 17px; font-weight: 600; color: #1a2a3a; }
-.profile-card .prole { font-size: 13px; color: #90a4ae; }
-  .menu-list { display: flex; flex-direction: column; gap: 1px; background: #e4e9f2; border-radius: 10px; overflow: hidden; }
-  .menu-item { background: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: #37474f; }
-  .menu-item .m-left { display: flex; align-items: center; gap: 8px; }
-  .menu-item .m-arrow { color: #90a4ae; font-size: 13px; }
-  .badge { background: #e3f2fd; color: #0288d1; font-size: 11px; padding: 2px 8px; border-radius: 3px; }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 16px; background: #f0f5fe; color: #1a2a3a; overflow: hidden; height: 100dvh; }
+.app { height: 100dvh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; position: relative; background: #f0f5fe; }
+.status-bar { padding: 6px 14px 3px; display: flex; justify-content: space-between; font-size: 12px; color: #90a4ae; background: #fff; flex-shrink: 0; border-bottom: 1px solid #e4e9f2; }
+.header { background: #fff; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e4e9f2; flex-shrink: 0; }
+.header h1 { font-size: 16px; color: #0288d1; font-weight: 600; }
+.header .sub { font-size: 10px; color: #90a4ae; }
+.header .right-icons { display: flex; gap: 12px; color: #90a4ae; font-size: 16px; }
+.pages { flex: 1; overflow: hidden; position: relative; }
+.page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; background: #f0f5fe; opacity: 0; pointer-events: none; transition: opacity .25s; padding: 10px 10px 4px; -webkit-overflow-scrolling: touch; }
+.page.active { opacity: 1; pointer-events: auto; }
+.page::-webkit-scrollbar { width: 3px; }
+.page::-webkit-scrollbar-thumb { background: #cfd8dc; border-radius: 2px; }
+.hero-img { width: 100%; height: 70px; object-fit: cover; border-radius: 8px; display: block; margin-bottom: 8px; border: 1px solid #e4e9f2; }
+.greeting { margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+.greeting .name { font-size: 16px; font-weight: 600; color: #1a2a3a; }
+.greeting .name small { font-weight: 400; color: #90a4ae; font-size: 11px; }
+.greeting .loc { font-size: 11px; color: #90a4ae; margin-top: 1px; }
+.greeting .avatar { width: 30px; height: 30px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; flex-shrink: 0; }
+.sec-title { font-size: 13px; font-weight: 600; color: #546e7a; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.sec-title .badge { font-size: 9px; color: #90a4ae; font-weight: 400; }
+.loc-strip { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 2px; }
+.loc-strip::-webkit-scrollbar { height: 2px; }
+.loc-strip::-webkit-scrollbar-thumb { background: #cfd8dc; border-radius: 1px; }
+.loc-chip { display: flex; align-items: center; gap: 3px; padding: 5px 10px; background: #fff; border: 1px solid #e4e9f2; border-radius: 12px; font-size: 12px; color: #607d8b; white-space: nowrap; cursor: pointer; flex-shrink: 0; }
+.loc-chip .dot { width: 5px; height: 5px; border-radius: 50%; background: #cfd8dc; flex-shrink: 0; }
+.loc-chip.active { background: #e3f2fd; border-color: #29b6f6; color: #01579b; }
+.loc-chip.active .dot { background: #29b6f6; box-shadow: 0 0 4px rgba(41,182,246,.4); }
+.loc-chip .gps { font-size: 9px; color: #90a4ae; font-family: monospace; }
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 6px; }
+.s-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; transition: .2s; }
+.s-card:active { transform: scale(.96); }
+.s-card .s-icon { height: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 1px; }
+.s-card .s-icon svg { width: 15px; height: 15px; }
+.s-card .s-label { font-size: 10px; color: #90a4ae; white-space: nowrap; }
+.s-card .s-value { font-size: 17px; font-weight: 700; font-family: monospace; margin: 1px 0; }
+.s-card .s-unit { font-size: 9px; color: #90a4ae; }
+.s-card .s-status { font-size: 9px; margin-top: 1px; color: #4caf50; }
+.s-card.do .s-value { color: #0288d1; } .s-card.do svg * { stroke: #0288d1; fill: none; }
+.s-card.temp .s-value { color: #ff7043; } .s-card.temp svg * { stroke: #ff7043; fill: none; }
+.s-card.ph .s-value { color: #7b1fa2; } .s-card.ph svg * { stroke: #7b1fa2; fill: none; }
+.s-card.sal .s-value { color: #00897b; } .s-card.sal svg * { stroke: #00897b; fill: none; }
+.s-card.nh3 .s-value { color: #ef6c00; } .s-card.nh3 svg * { stroke: #ef6c00; fill: none; }
+.s-card.nitrite .s-value { color: #d32f2f; } .s-card.nitrite svg * { stroke: #d32f2f; fill: none; }
+.map-wrap { border-radius: 8px; overflow: hidden; border: 1px solid #e4e9f2; margin-bottom: 8px; }
+#pondMap { height: 150px; background: #e8eaf6; }
+.mini-chart-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+.mini-chart-box canvas { width: 100% !important; height: 60px !important; }
+.device-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+.d-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; }
+.d-row .d-left { display: flex; align-items: center; gap: 6px; }
+.d-row .d-icon { font-size: 14px; }
+.d-row .d-info .d-name { font-size: 13px; color: #37474f; }
+.d-row .d-info .d-desc { font-size: 10px; color: #90a4ae; }
+.d-row .d-state { font-size: 10px; padding: 2px 8px; border-radius: 8px; flex-shrink: 0; }
+.d-row .d-state.on { background: #e8f5e9; color: #4caf50; }
+.d-row .d-state.off { background: #f5f5f5; color: #9e9e9e; }
+.d-row .d-state.standby { background: #fff3e0; color: #ff9800; }
+.d-row .d-state.fault { background: #ffebee; color: #f44336; }
+.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 6px; }
+.q-item { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px 2px; text-align: center; cursor: pointer; transition: .2s; }
+.q-item:active { transform: scale(.96); }
+.q-item .q-icon { font-size: 18px; }
+.q-item .q-label { font-size: 10px; color: #607d8b; margin-top: 1px; }
+.tab-bar { display: flex; background: #fff; border-top: 1px solid #e4e9f2; flex-shrink: 0; padding: 4px 0 env(safe-area-inset-bottom, 4px); }
+.tab-item { flex: 1; text-align: center; padding: 8px 0 6px; cursor: pointer; transition: .2s; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.tab-item .t-icon { font-size: 20px; color: #90a4ae; line-height: 1; }
+.tab-item .t-label { font-size: 10px; color: #90a4ae; margin-top: 2px; }
+.tab-item.active .t-icon { color: #0288d1; }
+.tab-item.active .t-label { color: #0288d1; font-weight: 600; }
+.detail-overlay { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #e4e9f2; border-radius: 14px 14px 0 0; padding: 12px 14px 16px; transition: transform .35s cubic-bezier(.4,0,.2,1); z-index: 20; max-height: 70vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,.08); }
+.detail-overlay.open { transform: translateX(-50%) translateY(0); }
+.detail-overlay .handle { width: 32px; height: 4px; background: #e4e9f2; border-radius: 2px; margin: 0 auto 8px; }
+.detail-overlay .d-title { font-size: 14px; color: #37474f; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.detail-overlay .d-close { position: absolute; top: 10px; right: 12px; color: #90a4ae; font-size: 15px; cursor: pointer; padding: 4px; }
+.detail-overlay table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.detail-overlay th { background: #f5f7fa; color: #607d8b; padding: 6px 8px; text-align: left; border-bottom: 1px solid #eceff1; font-weight: 500; }
+.detail-overlay td { padding: 5px 8px; border-bottom: 1px solid #eceff1; color: #37474f; }
+.detail-overlay .tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+.detail-overlay .tag.ok { background: #e8f5e9; color: #4caf50; }
+.detail-overlay .tag.warn { background: #fff3e0; color: #ff9800; }
+.params-full { display: flex; flex-direction: column; gap: 5px; }
+.param-row { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.param-row:active { background: #f5faff; }
+.param-row .p-left { display: flex; align-items: center; gap: 8px; }
+.param-row .p-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.param-row .p-name { font-size: 14px; color: #37474f; }
+.param-row .p-detail { font-size: 10px; color: #90a4ae; margin-top: 1px; }
+.param-row .p-value { font-size: 17px; font-weight: 700; font-family: monospace; }
+.login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 40px 24px; text-align: center; }
+.login-page .logo-wrap { display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+.login-page .logo-wrap img { height: 48px; width: auto; }
+.login-page .logo-text { font-size: 18px; font-weight: 700; color: #0288d1; letter-spacing: 3px; }
+.login-page .logo-sub { font-size: 12px; color: #90a4ae; margin-bottom: 20px; }
+.login-page input { width: 100%; background: #fff; border: 1px solid #e4e9f2; color: #37474f; padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
+.login-page input:focus { border-color: #29b6f6; }
+.login-page .login-btn { width: 100%; padding: 12px; background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.login-page .links { margin-top: 10px; display: flex; justify-content: space-between; width: 100%; font-size: 11px; color: #90a4ae; }
+.profile-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 10px; }
+.profile-card .p-avatar { width: 38px; height: 38px; background: linear-gradient(135deg,#29b6f6,#01579b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; margin: 0 auto 4px; }
+.profile-card .pname { font-size: 15px; font-weight: 600; color: #1a2a3a; }
+.profile-card .prole { font-size: 12px; color: #90a4ae; }
+.menu-list { display: flex; flex-direction: column; gap: 1px; background: #e4e9f2; border-radius: 8px; overflow: hidden; }
+.menu-item { background: #fff; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #37474f; cursor: pointer; }
+.menu-item:active { background: #f5faff; }
+.menu-item .m-left { display: flex; align-items: center; gap: 6px; }
+.menu-item .m-arrow { color: #90a4ae; font-size: 13px; }
+.mn-badge { background: #e3f2fd; color: #0288d1; font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+.back-bar { display: flex; align-items: center; gap: 8px; padding: 6px 0 10px; font-size: 14px; color: #0288d1; cursor: pointer; font-weight: 600; }
+.ctrl-panel { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+.ctrl-panel .cp-title { font-size: 13px; color: #37474f; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.ctrl-panel .cp-row { display: flex; gap: 6px; margin-bottom: 5px; align-items: center; flex-wrap: wrap; font-size: 12px; }
+.ctrl-panel .cp-row label { color: #90a4ae; min-width: 36px; font-size: 11px; }
+.ctrl-panel .cp-row select,.ctrl-panel .cp-row input { background: #f5f7fa; border: 1px solid #e4e9f2; color: #37474f; padding: 4px 8px; border-radius: 5px; font-size: 11px; outline: none; }
+.ctrl-panel .cp-row select:focus,.ctrl-panel .cp-row input:focus { border-color: #29b6f6; }
+.ctrl-panel .cp-row button { padding: 4px 12px; font-size: 11px; border: none; border-radius: 5px; cursor: pointer; transition: .2s; }
+.ctrl-panel .cp-row button:active { transform: scale(.95); }
+.cp-btn-start { background: #4caf50; color: #fff; }
+.cp-btn-stop { background: #f44336; color: #fff; }
+.cp-btn-ok { background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; }
+.cp-status { font-size: 11px; padding: 1px 8px; border-radius: 4px; }
+.cp-status.on { background: #e8f5e9; color: #4caf50; }
+.cp-status.off { background: #f5f5f5; color: #9e9e9e; }
+.filter-bar { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
+.filter-bar select,.filter-bar input { background: #fff; border: 1px solid #e4e9f2; color: #37474f; padding: 5px 8px; border-radius: 5px; font-size: 11px; outline: none; }
+.filter-bar select:focus,.filter-bar input:focus { border-color: #29b6f6; }
+.filter-bar button { background: linear-gradient(135deg,#29b6f6,#0288d1); color: #fff; border: none; padding: 5px 12px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+.chart-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+.chart-box .chart-container { position: relative; width: 100%; height: 120px; }
+.chart-box .chart-container canvas { display: block; width: 100%; height: 100%; }
+.setting-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eceff1; font-size: 12px; }
+.setting-row:last-child { border-bottom: none; }
+.setting-row .s-label { color: #37474f; }
+.setting-row .s-val { color: #90a4ae; font-size: 11px; }
+.setting-row .s-input { background: #f5f7fa; border: 1px solid #e4e9f2; color: #37474f; padding: 3px 6px; border-radius: 4px; font-size: 11px; width: 70px; text-align: center; outline: none; }
+.setting-row .s-input:focus { border-color: #29b6f6; }
+.toggle { position: relative; width: 34px; height: 18px; display: inline-block; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .slider { position: absolute; inset: 0; background: #cfd8dc; border-radius: 9px; cursor: pointer; transition: .3s; }
+.toggle .slider::before { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.toggle input:checked + .slider { background: linear-gradient(135deg,#29b6f6,#0288d1); }
+.toggle input:checked + .slider::before { transform: translateX(16px); }
+.alarm-item { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.alarm-item .a-left { display: flex; align-items: center; gap: 8px; }
+.alarm-item .a-icon { font-size: 14px; }
+.alarm-item .a-info .a-name { font-size: 12px; color: #37474f; }
+.alarm-item .a-info .a-desc { font-size: 10px; color: #90a4ae; }
+.alarm-item .a-badge { font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+.alarm-item .a-badge.done { background: #e8f5e9; color: #4caf50; }
+.alarm-item .a-badge.pending { background: #ffebee; color: #f44336; }
+.alarm-item .a-badge.recovered { background: #e3f2fd; color: #0288d1; }
+.v-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+.v-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 8px; overflow: hidden; }
+.v-box .v-img { width: 100%; height: 100px; object-fit: cover; display: block; }
+.v-box .v-label { padding: 4px 8px; font-size: 10px; color: #90a4ae; }
+.sub-page { display: none; flex-direction: column; gap: 0; }
+.sub-page.active { display: flex; }
+.sub-page .sp-inner { padding: 10px 10px 4px; overflow-y: auto; }
+.leaflet-container { background: #e8eaf6; }
+.leaflet-control-zoom a { background: #fff; color: #37474f; border-color: #e4e9f2; }
+.leaflet-popup-content-wrapper { border-radius: 6px; font-size: 11px; }
+.leaflet-popup-content { margin: 6px 10px; }
+.info-row { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #eceff1; }
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: #90a4ae; }
+.info-row .value { color: #37474f; font-weight: 500; }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="status-bar"><span> 11:28</span><span> 联通 5G  98%</span></div>
+  <div class="status-bar"><span>  11:28</span><span> 联通 5G  98%</span></div>
   <div class="header">
-        <div style="display:flex;align-items:center;gap:8px;"><img src="海南世电_默认3-1.svg" alt="WEST" style="height:26px;width:auto;display:block;flex-shrink:0;"><div><h1>世电科技</h1><div class="sub">海南世电科技有限公司</div></div></div>
-    <div class="right-icons"><span> </span><span> </span></div>
+    <div style="display:flex;align-items:center;gap:6px;"><img src="海南世电_默认3-1.svg" alt="WEST" style="height:22px;width:auto;display:block;flex-shrink:0;"><div><h1>世电科技</h1><div class="sub">智慧水产养殖平台</div></div></div>
+    <div class="right-icons"><span id="headerTime">--:--</span></div>
   </div>
 
   <div class="pages">
     <!-- PAGE 0: 首页 -->
     <div class="page active" id="page-home">
-      <img class="hero-img" src="https://picsum.photos/seed/aqua-farm/800/400" alt="渔场" loading="lazy">
       <div class="greeting">
-        <div><div class="name">张三 <small>管理员</small></div><div class="loc"> 1号养殖区 · 110.35°E, 20.02°N</div></div>
+        <div><div class="name">张三 <small>管理员</small></div><div class="loc" id="homeLocLabel"> 1号养殖区 · 110.35°E, 20.02°N</div></div>
         <div class="avatar">张</div>
       </div>
-
-      <div class="sec-title"> 选择塘口</div>
-      <div class="loc-strip" id="mLocStrip">
+      <div class="sec-title"><span>塘口选择</span></div>
+      <div class="loc-strip" id="homeLocStrip">
         <div class="loc-chip active" data-idx="0"><span class="dot"></span>1号塘 <span class="gps">110.35°E</span></div>
-        <div class="loc-chip" data-idx="1"><span class="dot"></span>2号塘 <span class="gps">110.35°E</span></div>
-        <div class="loc-chip" data-idx="2"><span class="dot"></span>3号塘 <span class="gps">110.34°E</span></div>
-        <div class="loc-chip" data-idx="3"><span class="dot"></span>4号塘 <span class="gps">110.35°E</span></div>
+        <div class="loc-chip" data-idx="1"><span class="dot"></span>2号塘 <span class="gps">110.36°E</span></div>
+        <div class="loc-chip" data-idx="2"><span class="dot"></span>3号塘 <span class="gps">110.35°E</span></div>
+        <div class="loc-chip" data-idx="3"><span class="dot"></span>4号塘 <span class="gps">110.36°E</span></div>
       </div>
-
-      <div class="sec-title"> 实时水质</div>
-      <div class="summary-grid" id="mParamGrid"></div>
-
+      <div class="sec-title"><span>塘口分布</span></div>
+      <div class="map-wrap"><div id="pondMap"></div></div>
+      <div class="sec-title"><span>实时水质</span> <span class="badge">点击查看详情</span></div>
+      <div class="summary-grid" id="homeParamGrid"></div>
       <div class="mini-chart-box">
-        <div class="sec-title" style="margin-bottom:4px;"> 溶解氧趋势</div>
-        <canvas id="mobileChart"></canvas>
+        <div class="sec-title" style="margin-bottom:3px;font-size:12px;"> 溶解氧趋势 <span class="badge">近24h</span></div>
+        <canvas id="homeChart"></canvas>
       </div>
-
-      <div class="sec-title"> 设备概览</div>
-      <div class="device-list">
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">打氧机 #1</div><div class="d-desc">1号塘 · 1200rpm</div></div></div><span class="d-state on">运行中</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">水泵</div><div class="d-desc">进水模式</div></div></div><span class="d-state on">运行中</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">投料机</div><div class="d-desc">定时投喂</div></div></div><span class="d-state off">已停机</span></div>
-      </div>
-
+      <div class="sec-title"><span>设备概览</span></div>
+      <div class="device-list" id="homeDeviceList"></div>
       <div class="quick-grid">
-        <div class="q-item" onclick="switchTab(1)"><div class="q-icon"> </div><div class="q-label">水质监测</div></div>
+        <div class="q-item" onclick="switchTab(1)"><div class="q-icon"> </div><div class="q-label">水质详情</div></div>
         <div class="q-item" onclick="switchTab(2)"><div class="q-icon"> </div><div class="q-label">设备控制</div></div>
-        <div class="q-item" onclick="switchTab(3)"><div class="q-icon"> </div><div class="q-label">监控</div></div>
-        <div class="q-item"><div class="q-icon"> </div><div class="q-label">扫码绑定</div></div>
+        <div class="q-item" onclick="switchTab(3)"><div class="q-icon"> </div><div class="q-label">视频监控</div></div>
+        <div class="q-item" onclick="switchTab(4)"><div class="q-icon"> </div><div class="q-label">更多</div></div>
       </div>
     </div>
 
-    <!-- PAGE 1: 水质 -->
+    <!-- PAGE 1: 水质监测 -->
     <div class="page" id="page-water">
-      <img class="hero-img" src="https://picsum.photos/seed/aqua-water/800/400" alt="" loading="lazy">
-      <div class="sec-title"> 水质参数 · 实时数据</div>
-      <div class="params-full" id="mWaterParams"></div>
+      <div class="back-bar" onclick="switchTab(0)"> 返回首页</div>
+      <div class="sec-title">塘口选择</div>
+      <div class="loc-strip" id="waterLocStrip">
+        <div class="loc-chip active" data-idx="0"><span class="dot"></span>1号塘</div>
+        <div class="loc-chip" data-idx="1"><span class="dot"></span>2号塘</div>
+        <div class="loc-chip" data-idx="2"><span class="dot"></span>3号塘</div>
+        <div class="loc-chip" data-idx="3"><span class="dot"></span>4号塘</div>
+      </div>
+      <div class="sec-title">水质参数</div>
+      <div class="params-full" id="waterParamList"></div>
     </div>
 
-    <!-- PAGE 2: 设备 -->
+    <!-- PAGE 2: 设备控制 -->
     <div class="page" id="page-device">
-      <img class="hero-img" src="https://picsum.photos/seed/aqua-equip/800/400" alt="" loading="lazy">
-      <div class="sec-title"> 塘口选择</div>
-      <div class="loc-strip"><div class="loc-chip active"><span class="dot"></span>1号塘</div><div class="loc-chip"><span class="dot"></span>2号塘</div><div class="loc-chip"><span class="dot"></span>3号塘</div></div>
-      <div class="sec-title"> 设备控制</div>
-      <div class="device-list">
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">增氧机</div><div class="d-desc">转速 1200rpm</div></div></div><span class="d-state on">运行中</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">水泵</div><div class="d-desc">进水模式</div></div></div><span class="d-state on">运行中</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">投料机</div><div class="d-desc">50kg/次</div></div></div><span class="d-state off">已停机</span></div>
-        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">照明灯</div><div class="d-desc">定时 18:00-06:00</div></div></div><span class="d-state off">已关闭</span></div>
+      <div class="back-bar" onclick="switchTab(0)"> 返回首页</div>
+      <div class="sec-title">塘口选择</div>
+      <div class="loc-strip" id="devLocStrip">
+        <div class="loc-chip active" data-idx="0"><span class="dot"></span>1号塘</div>
+        <div class="loc-chip" data-idx="1"><span class="dot"></span>2号塘</div>
+        <div class="loc-chip" data-idx="2"><span class="dot"></span>3号塘</div>
+        <div class="loc-chip" data-idx="3"><span class="dot"></span>4号塘</div>
       </div>
+      <div class="sec-title">设备控制面板</div>
+      <div id="devicePanels"></div>
     </div>
 
-    <!-- PAGE 3: 监控 -->
+    <!-- PAGE 3: 视频监控 -->
     <div class="page" id="page-video">
-      <img class="hero-img" src="https://picsum.photos/seed/aqua-camera/800/400" alt="" loading="lazy">
-      <div class="sec-title"> 监控画面</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
-        <div style="background:#fff;border:1px solid #e4e9f2;border-radius:8px;overflow:hidden;">
-          <img src="https://picsum.photos/seed/aqua-cam1/400/200" style="width:100%;height:80px;object-fit:cover;display:block;" alt="" loading="lazy">
-          <div style="padding:4px 8px;font-size:12px;color:#90a4ae;">1号塘 · 全景</div>
-        </div>
-        <div style="background:#fff;border:1px solid #e4e9f2;border-radius:8px;overflow:hidden;">
-          <img src="https://picsum.photos/seed/aqua-cam2/400/200" style="width:100%;height:80px;object-fit:cover;display:block;" alt="" loading="lazy">
-          <div style="padding:4px 8px;font-size:12px;color:#90a4ae;">2号塘 · 全景</div>
-        </div>
+      <div class="back-bar" onclick="switchTab(0)"> 返回首页</div>
+      <div class="sec-title">实时画面</div>
+      <div class="v-grid">
+        <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam1/400/200" alt="" loading="lazy"><div class="v-label"> 1号塘 · 全景</div></div>
+        <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam2/400/200" alt="" loading="lazy"><div class="v-label"> 2号塘 · 全景</div></div>
+        <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam3/400/200" alt="" loading="lazy"><div class="v-label"> 3号塘 · 东侧</div></div>
+        <div class="v-box"><img class="v-img" src="https://picsum.photos/seed/aqua-cam4/400/200" alt="" loading="lazy"><div class="v-label"> 3号塘 · 西侧</div></div>
       </div>
-      <div class="sec-title"> 摄像头列表</div>
+      <div class="sec-title">摄像头列表</div>
       <div class="device-list">
         <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-01 · 1号塘全景</div><div class="d-desc">110.3533°E, 20.0221°N</div></div></div><span class="d-state on">在线</span></div>
         <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-02 · 2号塘全景</div><div class="d-desc">110.3561°E, 20.0248°N</div></div></div><span class="d-state on">在线</span></div>
+        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-03 · 3号塘东侧</div><div class="d-desc">110.3502°E, 20.0193°N</div></div></div><span class="d-state on">在线</span></div>
+        <div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">IPC-04 · 3号塘西侧</div><div class="d-desc">110.3490°E, 20.0185°N</div></div></div><span class="d-state off">离线</span></div>
       </div>
     </div>
 
-    <!-- PAGE 4: 我的 -->
-    <div class="page" id="page-mine">
-      <div class="profile-card">
-        <div class="p-avatar">张</div>
-        <div class="pname">张三</div>
-        <div class="prole">公司管理员 · 海南世东水产养殖基地</div>
+    <!-- PAGE 4: 更多（子页面容器） -->
+    <div class="page" id="page-more">
+      <!-- 子页面: 我的 -->
+      <div class="sub-page active" id="sp-mine">
+        <div class="sp-inner">
+          <div class="profile-card">
+            <div class="p-avatar">张</div>
+            <div class="pname">张三</div>
+            <div class="prole">公司管理员 · 海南世东水产养殖基地</div>
+          </div>
+          <div class="menu-list">
+            <div class="menu-item" onclick="showSubPage('sp-history')"><span class="m-left"> 历史数据</span><span class="m-arrow">›</span></div>
+            <div class="menu-item" onclick="showSubPage('sp-alarm')"><span class="m-left"> 报警设置</span><span class="m-arrow">›</span></div>
+            <div class="menu-item" onclick="showSubPage('sp-binding')"><span class="m-left"> 设备绑定</span><span class="m-arrow">›</span></div>
+            <div class="menu-item" onclick="showSubPage('sp-account')"><span class="m-left"> 账号管理</span><span class="m-arrow">›</span></div>
+            <div class="menu-item"><span class="m-left"> 我的设备</span><span class="mn-badge">8</span><span class="m-arrow">›</span></div>
+            <div class="menu-item"><span class="m-left"> 系统设置</span><span class="m-arrow">›</span></div>
+          </div>
+          <div style="margin-top:12px;"><button onclick="showLogin()" style="background:transparent;border:1px solid #f44336;color:#f44336;padding:8px 0;border-radius:8px;font-size:13px;width:100%;cursor:pointer;">退出登录</button></div>
+        </div>
       </div>
-      <div class="menu-list">
-        <div class="menu-item"><span class="m-left"> 我的设备</span><span class="badge">8</span><span class="m-arrow">›</span></div>
-        <div class="menu-item"><span class="m-left"> 报警记录</span><span class="badge">3</span><span class="m-arrow">›</span></div>
-        <div class="menu-item"><span class="m-left"> 流量剩余 <span style="color:#0288d1;font-weight:600;">126 天</span></span><span class="m-arrow">›</span></div>
-        <div class="menu-item"><span class="m-left"> 报警设置</span><span class="m-arrow">›</span></div>
-        <div class="menu-item"><span class="m-left"> 账号安全</span><span class="m-arrow">›</span></div>
-        <div class="menu-item"><span class="m-left"> 操作记录</span><span class="m-arrow">›</span></div>
-        <div class="menu-item"><span class="m-left"> 关于系统</span><span class="m-arrow">›</span></div>
+
+      <!-- 子页面: 历史数据 -->
+      <div class="sub-page" id="sp-history">
+        <div class="sp-inner">
+          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
+          <div class="sec-title">历史数据查询</div>
+          <div class="filter-bar">
+            <select id="histPond"><option>1号塘</option><option>2号塘</option><option>3号塘</option><option>4号塘</option></select>
+            <select id="histParam"><option>全部参数</option><option>溶解氧</option><option>水温</option><option>pH值</option><option>盐度</option><option>氨氮</option><option>亚硝酸盐</option></select>
+            <input type="text" value="2026-05-01" style="width:80px;">
+            <span style="color:#90a4ae;font-size:10px;">至</span>
+            <input type="text" value="2026-05-20" style="width:80px;">
+          </div>
+          <div class="chart-box"><div class="chart-container"><canvas id="historyChart"></canvas></div></div>
+          <div style="font-size:11px;color:#90a4ae;margin-bottom:4px;">记录列表 <span style="color:#0288d1;">共386条</span></div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:10px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e4e9f2;">
+              <thead><tr style="background:#f5f7fa;"><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">时间</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">塘口</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">DO</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">水温</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">pH</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">氨氮</th></tr></thead>
+              <tbody id="histTableBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div style="margin-top:16px;"><button onclick="showLogin()" style="background:transparent;border:1px solid #f44336;color:#f44336;padding:8px 0;border-radius:8px;font-size:13px;width:100%;cursor:pointer;">退出登录</button></div>
+
+      <!-- 子页面: 报警设置 -->
+      <div class="sub-page" id="sp-alarm">
+        <div class="sp-inner">
+          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
+          <div class="sec-title">报警设置 · 通知管理</div>
+          <div class="setting-card">
+            <div class="setting-row"><span class="s-label">短信报警</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="setting-row"><span class="s-label">绑定手机</span><span class="s-val">138****8888</span><span style="color:#0288d1;font-size:10px;cursor:pointer;">编辑</span></div>
+            <div class="setting-row"><span class="s-label">备用手机</span><span class="s-val">139****9999</span><span style="color:#0288d1;font-size:10px;cursor:pointer;">编辑</span></div>
+            <div class="setting-row"><span class="s-label">邮箱报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+            <div class="setting-row"><span class="s-label">电话报警</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+          </div>
+          <div class="setting-card">
+            <div class="setting-row"><span class="s-label">溶解氧下限</span><input class="s-input" value="4.0"> <span style="color:#90a4ae;font-size:10px;">mg/L</span></div>
+            <div class="setting-row"><span class="s-label">温度上限</span><input class="s-input" value="32"> <span style="color:#90a4ae;font-size:10px;">°C</span></div>
+            <div class="setting-row"><span class="s-label">pH 范围</span><input class="s-input" value="6.0" style="width:55px;"> – <input class="s-input" value="9.0" style="width:55px;"></div>
+            <div class="setting-row"><span class="s-label">氨氮上限</span><input class="s-input" value="0.2"> <span style="color:#90a4ae;font-size:10px;">mg/L</span></div>
+            <div class="setting-row" style="justify-content:flex-end;border:none;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:5px 16px;border-radius:5px;font-size:11px;cursor:pointer;">保存设置</button></div>
+          </div>
+          <div class="sec-title">近期报警记录</div>
+          <div id="alarmList"></div>
+        </div>
+      </div>
+
+      <!-- 子页面: 设备绑定 -->
+      <div class="sub-page" id="sp-binding">
+        <div class="sp-inner">
+          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
+          <div class="sec-title">设备绑定设置</div>
+          <div class="setting-card">
+            <div style="font-size:12px;color:#37474f;margin-bottom:6px;"> 网关绑定</div>
+            <div class="setting-row"><span class="s-label">网关编号</span><span class="s-val">GW-20260501-001</span><span style="color:#4caf50;font-size:10px;">已绑定</span></div>
+            <div class="setting-row"><span class="s-label">传感器点位</span><span class="s-val">1号塘 · 2号塘 · 3号塘</span><span style="color:#0288d1;font-size:10px;cursor:pointer;">编辑</span></div>
+          </div>
+          <div class="setting-card">
+            <div style="font-size:12px;color:#37474f;margin-bottom:6px;"> 监测箱绑定</div>
+            <div class="setting-row"><span class="s-label">监测箱编号</span><span class="s-val">BOX-A01</span><span style="color:#4caf50;font-size:10px;">已绑定</span></div>
+            <div class="setting-row"><span class="s-label">采集顺序</span><span class="s-val">1号塘 → 2号塘 → 3号塘（轮巡）</span></div>
+          </div>
+          <div class="setting-card" style="text-align:center;padding:16px;">
+            <div style="font-size:28px;margin-bottom:4px;"> </div>
+            <div style="font-size:13px;color:#0288d1;font-weight:600;">扫码绑定新设备</div>
+            <div style="font-size:10px;color:#90a4ae;margin-top:2px;">打开摄像头扫描设备二维码</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 子页面: 账号管理 -->
+      <div class="sub-page" id="sp-account">
+        <div class="sp-inner">
+          <div class="back-bar" onclick="showSubPage('sp-mine')"> 返回</div>
+          <div class="sec-title">账号信息</div>
+          <div class="setting-card">
+            <div class="setting-row"><span class="s-label">用户名</span><span class="s-val">zhangsan</span></div>
+            <div class="setting-row"><span class="s-label">角色</span><span class="s-val" style="color:#0288d1;font-weight:600;">公司管理员</span></div>
+            <div class="setting-row"><span class="s-label">剩余流量</span><span class="s-val" style="color:#0288d1;font-weight:600;">126 天</span></div>
+            <div class="setting-row"><span class="s-label">修改密码</span><span style="color:#0288d1;font-size:11px;cursor:pointer;">修改</span></div>
+          </div>
+          <div class="sec-title">子账号管理</div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:10px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e4e9f2;">
+              <thead><tr style="background:#f5f7fa;"><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">账号</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">姓名</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">角色</th><th style="padding:5px 6px;text-align:left;color:#607d8b;font-weight:500;">操作</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">lisi</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">李四</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">操作员</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;"><span style="color:#0288d1;cursor:pointer;">编辑</span> <span style="color:#f44336;cursor:pointer;">禁用</span></td></tr>
+                <tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">wangwu</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">王五</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">操作员</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;"><span style="color:#0288d1;cursor:pointer;">编辑</span> <span style="color:#f44336;cursor:pointer;">禁用</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:6px;"><button style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff;border:none;padding:6px 16px;border-radius:5px;font-size:11px;cursor:pointer;">+ 添加子账号</button></div>
+          <div class="sec-title" style="margin-top:8px;">操作记录</div>
+          <div style="font-size:11px;color:#607d8b;line-height:2;background:#fff;border:1px solid #e4e9f2;border-radius:8px;padding:8px 10px;">
+            <div>2026-05-20 08:15 张三 启用了 1号塘 增氧机</div>
+            <div>2026-05-20 06:30 张三 查看 1号塘 水质数据</div>
+            <div>2026-05-19 22:00 李四 修改 2号塘 报警阈值</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- PAGE 5: 登录 -->
@@ -263,7 +405,7 @@
   <div class="detail-overlay" id="mDetail">
     <div class="handle"></div>
     <span class="d-close" onclick="closeMDetail()">✕</span>
-    <div class="d-title" id="mDetailTitle"> 采集数据详情</div>
+    <div class="d-title" id="mDetailTitle">详情</div>
     <div style="overflow-x:auto;"><table id="mDetailTable"></table></div>
   </div>
 
@@ -272,111 +414,205 @@
     <div class="tab-item" onclick="switchTab(1)"><div class="t-icon"> </div><div class="t-label">水质</div></div>
     <div class="tab-item" onclick="switchTab(2)"><div class="t-icon"> </div><div class="t-label">设备</div></div>
     <div class="tab-item" onclick="switchTab(3)"><div class="t-icon"> </div><div class="t-label">监控</div></div>
-    <div class="tab-item" onclick="switchTab(4)"><div class="t-icon"> </div><div class="t-label">我的</div></div>
+    <div class="tab-item" onclick="switchTab(4)"><div class="t-icon"> </div><div class="t-label">更多</div></div>
   </div>
 </div>
 
 <script>
-  const LOCS = [
-    { name: '1号塘', lat: '20.0215', lng: '110.3528' },
-    { name: '2号塘', lat: '20.0242', lng: '110.3556' },
-    { name: '3号塘', lat: '20.0188', lng: '110.3497' },
-    { name: '4号塘', lat: '20.0261', lng: '110.3589' }
-  ];
+const LOCS=[
+  {name:'1号塘',lat:20.0215,lng:110.3528,id:'POND-001'},
+  {name:'2号塘',lat:20.0242,lng:110.3556,id:'POND-002'},
+  {name:'3号塘',lat:20.0188,lng:110.3497,id:'POND-003'},
+  {name:'4号塘',lat:20.0261,lng:110.3589,id:'POND-004'}
+];
+const PARAMS=[
+  {key:'do',label:'溶解氧',unit:'mg/L',color:'#0288d1'},
+  {key:'temp',label:'水温',unit:'°C',color:'#ff7043'},
+  {key:'ph',label:'pH值',unit:'pH',color:'#7b1fa2'},
+  {key:'sal',label:'盐度',unit:'‰',color:'#00897b'},
+  {key:'nh3',label:'氨氮',unit:'mg/L',color:'#ef6c00'},
+  {key:'nitrite',label:'亚硝酸盐',unit:'mg/L',color:'#d32f2f'}
+];
+const DATA_LOC=[
+  {do:6.82,temp:26.3,ph:7.82,sal:28.5,nh3:0.05,nitrite:0.02},
+  {do:6.51,temp:26.8,ph:7.90,sal:29.1,nh3:0.08,nitrite:0.03},
+  {do:7.10,temp:25.9,ph:7.65,sal:27.8,nh3:0.12,nitrite:0.04},
+  {do:6.93,temp:26.5,ph:7.88,sal:28.9,nh3:0.06,nitrite:0.02}
+];
+const DEVICES=[
+  [{name:'增氧机 #1',status:'running'},{name:'增氧机 #2',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'standby'},{name:'照明灯',status:'off'},{name:'温控设备',status:'fault'},{name:'溶氧传感器',status:'running'},{name:'pH传感器',status:'running'}],
+  [{name:'增氧机 #1',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'running'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'氨氮传感器',status:'running'},{name:'浊度传感器',status:'running'}],
+  [{name:'增氧机 #1',status:'running'},{name:'增氧机 #2',status:'standby'},{name:'水泵',status:'running'},{name:'投料机',status:'off'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'ORP传感器',status:'running'},{name:'盐度传感器',status:'running'}],
+  [{name:'增氧机 #1',status:'running'},{name:'水泵',status:'running'},{name:'投料机',status:'running'},{name:'照明灯',status:'off'},{name:'温控设备',status:'running'},{name:'TDS传感器',status:'running'},{name:'水位传感器',status:'running'}]
+];
+const TIMES=['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
+const DO_DATA=[6.35,6.08,6.21,6.55,6.82,7.00,6.88,6.72,6.95,7.10,6.80,6.50];
 
-  const PARAMS_M = [
-    { key:'do', label:'溶解氧', unit:'mg/L', color:'#0288d1', vals:[6.82,6.51,7.10,6.93] },
-    { key:'temp', label:'水温', unit:'°C', color:'#ff7043', vals:[26.3,26.8,25.9,26.5] },
-    { key:'ph', label:'pH值', unit:'pH', color:'#7b1fa2', vals:[7.82,7.90,7.65,7.88] },
-    { key:'sal', label:'盐度', unit:'‰', color:'#00897b', vals:[28.5,29.1,27.8,28.9] },
-    { key:'nh3', label:'氨氮', unit:'mg/L', color:'#ef6c00', vals:[0.05,0.08,0.12,0.06] },
-    { key:'nitrite', label:'亚硝酸盐', unit:'mg/L', color:'#d32f2f', vals:[0.02,0.03,0.04,0.02] }
-  ];
+const SVG={
+  do:'<svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="7" stroke-width="1.4"/><path d="M11 5v12M8 10l3-3 3 3" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  temp:'<svg viewBox="0 0 22 22"><rect x="9" y="2" width="4" height="12" rx="2" stroke-width="1.3"/><circle cx="11" cy="17" r="4" stroke-width="1.3"/><path d="M11 15v4M10 17h2" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  ph:'<svg viewBox="0 0 22 22"><path d="M3 11l4-6 3 5 3-5 4 6" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="M3 14h16M3 16.5h12" stroke-width="1.1" stroke-linecap="round"/></svg>',
+  sal:'<svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="7" stroke-width="1.3"/><path d="M11 6v10M8 11l3-3 3 3" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  nh3:'<svg viewBox="0 0 22 22"><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700" fill="rgba(239,108,0,0.08)">NH</text><text x="17" y="10" text-anchor="middle" font-size="5" font-weight="700" fill="rgba(239,108,0,0.08)">3</text></svg>',
+  nitrite:'<svg viewBox="0 0 22 22"><text x="11" y="15" text-anchor="middle" font-size="8" font-weight="700" fill="rgba(211,47,47,0.08)">NO</text><text x="17" y="9" text-anchor="middle" font-size="5" font-weight="700" fill="rgba(211,47,47,0.08)">2</text></svg>'
+};
 
-  const SVG = {
-    do:'<svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="7" stroke-width="1.4"/><path d="M11 5v12M8 10l3-3 3 3" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    temp:'<svg viewBox="0 0 22 22"><rect x="9" y="2" width="4" height="12" rx="2" stroke-width="1.3"/><circle cx="11" cy="17" r="4" stroke-width="1.3"/><path d="M11 15v4M10 17h2" stroke-width="1.2" stroke-linecap="round"/></svg>',
-    ph:'<svg viewBox="0 0 22 22"><path d="M3 11l4-6 3 5 3-5 4 6" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="M3 14h16M3 16.5h12" stroke-width="1.1" stroke-linecap="round"/></svg>',
-    sal:'<svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="7" stroke-width="1.3"/><path d="M11 6v10M8 11l3-3 3 3" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    nh3:'<svg viewBox="0 0 22 22"><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700" fill="rgba(239,108,0,0.08)">NH</text><text x="17" y="10" text-anchor="middle" font-size="5" font-weight="700" fill="rgba(239,108,0,0.08)">3</text></svg>',
-    nitrite:'<svg viewBox="0 0 22 22"><text x="11" y="15" text-anchor="middle" font-size="8" font-weight="700" fill="rgba(211,47,47,0.08)">NO</text><text x="17" y="9" text-anchor="middle" font-size="5" font-weight="700" fill="rgba(211,47,47,0.08)">2</text></svg>'
-  };
+let curLoc=0, homeChart=null, histChart=null, mapInstance=null, mapMarkers=[];
 
-  const TIMES = ['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
-  const DO_DATA = [6.35,6.08,6.21,6.55,6.82,7.00,6.88,6.72,6.95,7.10,6.80,6.50];
+function buildHomeParams(loc){
+  const g=document.getElementById('homeParamGrid');
+  g.innerHTML=PARAMS.map(p=>{
+    const v=DATA_LOC[loc][p.key];
+    return `<div class="s-card ${p.key}" onclick="showDetail('${p.key}')"><div class="s-icon">${SVG[p.key]}</div><div class="s-label">${p.label}</div><div class="s-value">${v}</div><div class="s-unit">${p.unit}</div><div class="s-status">正常</div></div>`;
+  }).join('');
+}
 
-  let mCurLoc = 0, mChart = null;
+function buildHomeDevices(loc){
+  const c=document.getElementById('homeDeviceList');
+  c.innerHTML=DEVICES[loc].slice(0,5).map(d=>{
+    const label={running:'运行中',standby:'待机',off:'已关闭',fault:'故障'}[d.status]||d.status;
+    return `<div class="d-row"><div class="d-left"><span class="d-icon"> </span><div class="d-info"><div class="d-name">${d.name}</div><div class="d-desc">${LOCS[loc].name}</div></div></div><span class="d-state ${d.status}">${label}</span></div>`;
+  }).join('');
+}
 
-  function buildMParams(loc) {
-    const grid = document.getElementById('mParamGrid');
-    const main4 = PARAMS_M.slice(0,4);
-    grid.innerHTML = main4.map(p => `
-      <div class="s-card ${p.key}" onclick="showMDetail('${p.key}')">
-        <div class="s-icon">${SVG[p.key]}</div><div class="s-label">${p.label}</div>
-        <div class="s-value">${p.vals[loc]}</div><div class="s-unit">${p.unit}</div><div class="s-status">正常</div>
-      </div>
-    `).join('');
+function buildDevicePanels(loc){
+  document.getElementById('devicePanels').innerHTML=`
+    <div class="ctrl-panel"><div class="cp-title"> 增氧机 <span class="cp-status on" id="devAeratorStatus">运行中</span></div><div class="cp-row"><label>转速</label><input type="text" value="1200" style="width:60px;"><span style="color:#90a4ae;">rpm</span></div><div class="cp-row"><label>定时</label><input type="text" value="06:00-18:00" style="width:90px;"></div><div class="cp-row"><label>操作</label><button class="cp-btn-start">启动</button><button class="cp-btn-stop">停止</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 水泵 <span class="cp-status on" id="devPumpStatus">进水模式</span></div><div class="cp-row"><label>模式</label><select><option>进水</option><option>排水</option><option>循环</option></select></div><div class="cp-row"><label>操作</label><button class="cp-btn-ok">执行</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 投料机 <span class="cp-status off" id="devFeederStatus">已停机</span></div><div class="cp-row"><label>投喂量</label><input type="text" value="50" style="width:60px;"><span style="color:#90a4ae;">kg</span></div><div class="cp-row"><label>间隔</label><input type="text" value="4" style="width:40px;"><span style="color:#90a4ae;">h</span></div><div class="cp-row"><label>操作</label><button class="cp-btn-start">投料</button><button class="cp-btn-stop">停止</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 照明灯 <span class="cp-status off" id="devLightStatus">已关闭</span></div><div class="cp-row"><label>定时</label><input type="text" value="18:00-06:00" style="width:90px;"></div><div class="cp-row"><label>操作</label><button class="cp-btn-start">开启</button><button class="cp-btn-stop">关闭</button></div></div>
+    <div class="ctrl-panel"><div class="cp-title"> 温度调节 <span class="cp-status on" id="devTempStatus">恒温 26°C</span></div><div class="cp-row"><label>目标</label><input type="text" value="26" style="width:50px;"><span style="color:#90a4ae;">°C</span></div><div class="cp-row"><label>操作</label><button class="cp-btn-ok">设定</button></div></div>
+  `;
+  document.getElementById('homeLocLabel').textContent=` ${LOCS[loc].name} · ${LOCS[loc].lng}°E, ${LOCS[loc].lat}°N`;
+}
 
-    let extra = document.querySelector('.extra-row');
-    if (!extra) { extra = document.createElement('div'); extra.className = 'extra-row'; grid.parentNode.insertBefore(extra, grid.nextSibling); }
-    extra.innerHTML = [PARAMS_M[4], PARAMS_M[5]].map(p => {
-      const v = p.vals[loc];
-      const ok = p.key === 'nh3' ? v < 0.1 : v < 0.03;
-      return `<div class="extra-item ${p.key}"><div class="e-icon">${SVG[p.key]}</div><div class="e-label">${p.label}</div><div class="e-value">${v}</div><div class="e-unit">${p.unit}</div><div style="font-size:11px;color:${ok?'#4caf50':'#ff9800'};">${ok?'正常':'偏高'}</div></div>`;
-    }).join('');
-  }
+function updateMapCenter(loc){
+  if(!mapInstance) return;
+  const l=LOCS[loc];
+  mapInstance.setView([l.lat,l.lng],15);
+  mapMarkers.forEach((m,i)=>m.setIcon(L.divIcon({html:`<div style="background:${i===loc?'#0288d1':'#78909c'};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]})));
+}
 
-  function showMDetail(key) {
-    const p = PARAMS_M.find(x => x.key === key); if (!p) return;
-    document.getElementById('mDetailTitle').innerHTML = ` ${p.label} · ${LOCS[mCurLoc].name} 采集记录`;
-    document.getElementById('mDetailTable').innerHTML =
-      `<thead><tr><th>时间</th><th>数值</th><th>单位</th><th>位置</th><th>状态</th></tr></thead><tbody>` +
-      TIMES.map((t, i) => {
-        const val = key === 'do' ? DO_DATA[i] : (5 + Math.random() * 3).toFixed(2);
-        const ok = key === 'do' ? val > 5 : true;
-        return `<tr><td>${t}</td><td>${val}</td><td>${p.unit}</td><td>${LOCS[mCurLoc].name}</td><td><span class="tag ${ok?'ok':'warn'}">${ok?'正常':'偏低'}</span></td></tr>`;
-      }).join('') + `</tbody>`;
-    document.getElementById('mDetail').classList.add('open');
-  }
-  function closeMDetail() { document.getElementById('mDetail').classList.remove('open'); }
-
-  function switchMLoc(idx) {
-    mCurLoc = idx;
-    document.querySelectorAll('.loc-chip').forEach((c, i) => c.classList.toggle('active', i === idx));
-    buildMParams(idx);
-    if (mChart) { mChart.data.datasets[0].data = DO_DATA; mChart.update(); }
-  }
-
-  document.querySelectorAll('#mLocStrip .loc-chip').forEach(c => c.addEventListener('click', () => switchMLoc(parseInt(c.dataset.idx))));
-
-  const pageIds = ['page-home','page-water','page-device','page-video','page-mine','page-login'];
-  const tabItems = document.querySelectorAll('.tab-item');
-  function switchTab(idx) {
-    if (idx === 5) { showLogin(); return; }
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(pageIds[idx]).classList.add('active');
-    tabItems.forEach((t, i) => t.classList.toggle('active', i === idx));
-  }
-  function showLogin() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-login').classList.add('active'); document.getElementById('tabBar').style.display = 'none'; }
-  function doLogin() { document.getElementById('tabBar').style.display = 'flex'; switchTab(0); }
-
-  function buildWaterParams() {
-    document.getElementById('mWaterParams').innerHTML = PARAMS_M.map(p =>
-      `<div class="param-row" onclick="showMDetail('${p.key}')">
-        <div class="p-left"><div class="p-dot" style="background:${p.color}"></div><div><div class="p-name">${p.label}</div><div class="p-detail">${LOCS[mCurLoc].name} · ${p.unit}</div></div></div>
-        <div class="p-value" style="color:${p.color}">${p.vals[mCurLoc]}</div>
-      </div>`
-    ).join('');
-  }
-
-  mChart = new Chart(document.getElementById('mobileChart').getContext('2d'), {
-    type:'line',
-    data:{ labels:TIMES, datasets:[{ label:'溶解氧', data:DO_DATA, borderColor:'#0288d1', backgroundColor:'rgba(2,136,209,0.04)', fill:true, tension:.3, pointRadius:0 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#90a4ae', font:{ size:7 } }, grid:{ color:'#eceff1' } }, y:{ ticks:{ color:'#90a4ae', font:{ size:7 } }, grid:{ color:'#eceff1' } } } }
+function initMap(){
+  if(mapInstance) return;
+  mapInstance=L.map('pondMap',{zoomControl:false,attributionControl:false}).setView([LOCS[0].lat,LOCS[0].lng],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(mapInstance);
+  L.control.zoom({position:'bottomright'}).addTo(mapInstance);
+  LOCS.forEach((l,i)=>{
+    const m=L.marker([l.lat,l.lng],{icon:L.divIcon({html:`<div style="background:${i===0?'#0288d1':'#78909c'};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]})}).addTo(mapInstance);
+    m.bindPopup(`<b>${l.name}</b><br>${l.lng}°E, ${l.lat}°N<br><span style="color:#0288d1;font-size:10px;">DO: ${DATA_LOC[i].do} mg/L</span>`);
+    m.on('click',()=>{switchLoc(i);refreshAllLoc(i);});
+    mapMarkers.push(m);
   });
+}
 
-  buildMParams(0);
-  buildWaterParams();
+function refreshAllLoc(idx){
+  curLoc=idx;
+  buildHomeParams(idx);
+  buildHomeDevices(idx);
+  buildDevicePanels(idx);
+  buildWaterParams(idx);
+  updateMapCenter(idx);
+  document.getElementById('homeLocLabel').textContent=` ${LOCS[idx].name} · ${LOCS[idx].lng}°E, ${LOCS[idx].lat}°N`;
+  document.querySelectorAll('.loc-chip').forEach((c,i)=>c.classList.toggle('active',i===idx));
+}
+
+function switchLoc(idx){
+  curLoc=idx;
+  document.querySelectorAll('.loc-chip').forEach((c,i)=>c.classList.toggle('active',i===idx));
+}
+
+document.querySelectorAll('#homeLocStrip .loc-chip').forEach(c=>c.addEventListener('click',()=>{const i=parseInt(c.dataset.idx);refreshAllLoc(i);if(homeChart){homeChart.data.datasets[0].data=DO_DATA;homeChart.update();}}));
+document.querySelectorAll('#waterLocStrip .loc-chip').forEach(c=>c.addEventListener('click',()=>{const i=parseInt(c.dataset.idx);switchLoc(i);buildWaterParams(i);}));
+document.querySelectorAll('#devLocStrip .loc-chip').forEach(c=>c.addEventListener('click',()=>{const i=parseInt(c.dataset.idx);switchLoc(i);buildDevicePanels(i);}));
+
+function showDetail(key){
+  const p=PARAMS.find(x=>x.key===key);if(!p)return;
+  document.getElementById('mDetailTitle').innerHTML=` ${p.label} · ${LOCS[curLoc].name} 采集记录`;
+  document.getElementById('mDetailTable').innerHTML=
+    `<thead><tr><th>时间</th><th>数值</th><th>单位</th><th>位置</th><th>状态</th></tr></thead><tbody>`+
+    TIMES.map((t,i)=>{
+      const v=key==='do'?DO_DATA[i]:(4+Math.random()*4).toFixed(2);
+      return `<tr><td>${t}</td><td>${v}</td><td>${p.unit}</td><td>${LOCS[curLoc].name}</td><td><span class="tag ok">正常</span></td></tr>`;
+    }).join('')+`</tbody>`;
+  document.getElementById('mDetail').classList.add('open');
+}
+function closeMDetail(){document.getElementById('mDetail').classList.remove('open');}
+
+function buildWaterParams(loc){
+  const l=loc!==undefined?loc:curLoc;
+  document.getElementById('waterParamList').innerHTML=PARAMS.map(p=>
+    `<div class="param-row" onclick="showDetail('${p.key}')"><div class="p-left"><div class="p-dot" style="background:${p.color}"></div><div><div class="p-name">${p.label}</div><div class="p-detail">${LOCS[l].name} · ${p.unit}</div></div></div><div class="p-value" style="color:${p.color}">${DATA_LOC[l][p.key]}</div></div>`
+  ).join('');
+}
+
+const pageIds=['page-home','page-water','page-device','page-video','page-more','page-login'];
+const tabItems=document.querySelectorAll('.tab-item');
+function switchTab(idx){
+  if(idx===5){showLogin();return;}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageIds[idx]).classList.add('active');
+  tabItems.forEach((t,i)=>t.classList.toggle('active',i===idx));
+  if(idx===0&&homeChart){homeChart.resize();}
+  if(idx===1){buildWaterParams(curLoc);}
+  if(idx===2){buildDevicePanels(curLoc);}
+  if(idx===4){document.querySelectorAll('#sp-mine,.sub-page').forEach(p=>p.classList.remove('active'));document.getElementById('sp-mine').classList.add('active');}
+}
+function showLogin(){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-login').classList.add('active');document.getElementById('tabBar').style.display='none';}
+function doLogin(){document.getElementById('tabBar').style.display='flex';switchTab(0);}
+
+function showSubPage(id){
+  document.querySelectorAll('#page-more .sub-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='sp-history'){if(histChart){histChart.resize();}buildHistTable();}
+  if(id==='sp-alarm')buildAlarmList();
+}
+
+function buildHistTable(){
+  const b=document.getElementById('histTableBody');
+  b.innerHTML='';
+  for(let i=0;i<8;i++){
+    const h=6-i*2;
+    b.innerHTML+=`<tr><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">05-${String(20-i).padStart(2,'0')} ${String(h).padStart(2,'0')}:00</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">1号塘</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(6+Math.random()).toFixed(2)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(25+Math.random()*3).toFixed(1)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(7.5+Math.random()*0.5).toFixed(2)}</td><td style="padding:4px 6px;border-bottom:1px solid #eceff1;">${(Math.random()*0.1).toFixed(2)}</td></tr>`;
+  }
+}
+
+function buildAlarmList(){
+  const alarms=[
+    {name:'1号塘 · 溶解氧偏低',desc:'2026-05-19 03:15 · 值:3.85 mg/L · 已启动增氧机',badge:'recovered',label:'已处理'},
+    {name:'2号塘 · 温度过高',desc:'2026-05-18 14:30 · 值:33.2 °C · 已开启降温',badge:'done',label:'已恢复'},
+    {name:'1号塘 · 打氧机故障',desc:'2026-05-18 06:12 · 设备异常停机',badge:'pending',label:'未处理'},
+    {name:'3号塘 · 氨氮超标',desc:'2026-05-17 22:00 · 值:0.35 mg/L',badge:'done',label:'已恢复'}
+  ];
+  document.getElementById('alarmList').innerHTML=alarms.map(a=>
+    `<div class="alarm-item"><div class="a-left"><span class="a-icon"> </span><div class="a-info"><div class="a-name">${a.name}</div><div class="a-desc">${a.desc}</div></div></div><span class="a-badge ${a.badge}">${a.label}</span></div>`
+  ).join('');
+}
+
+function updateClock(){
+  const d=new Date();
+  document.getElementById('headerTime').textContent=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  document.querySelector('.status-bar span:first-child').textContent=` ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+homeChart=new Chart(document.getElementById('homeChart').getContext('2d'),{
+  type:'line',
+  data:{labels:TIMES,datasets:[{label:'溶解氧',data:DO_DATA,borderColor:'#0288d1',backgroundColor:'rgba(2,136,209,0.04)',fill:true,tension:.3,pointRadius:0}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}},y:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}}}}
+});
+
+histChart=new Chart(document.getElementById('historyChart').getContext('2d'),{
+  type:'line',
+  data:{labels:TIMES,datasets:[{label:'溶解氧',data:DO_DATA,borderColor:'#0288d1',backgroundColor:'rgba(2,136,209,0.04)',fill:true,tension:.3,pointRadius:0},{label:'水温',data:[25.6,25.3,25.5,25.8,26.3,26.8,26.5,26.2,26.6,26.9,26.4,26.0],borderColor:'#ff7043',backgroundColor:'rgba(255,112,67,0.04)',fill:true,tension:.3,pointRadius:0}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9}}}},scales:{x:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}},y:{ticks:{color:'#90a4ae',font:{size:7}},grid:{color:'#eceff1'}}}}
+});
+
+updateClock();
+setInterval(updateClock,1000);
+initMap();
+refreshAllLoc(0);
+buildWaterParams(0);
+buildAlarmList();
 </script>
 </body>
 </html>
