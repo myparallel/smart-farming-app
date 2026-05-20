@@ -169,7 +169,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .sub-page.active { display: flex; }
 .sub-page .sp-inner { padding: 10px 10px 4px; overflow-y: auto; }
 .leaflet-container { background: #e8eaf6; }
-.leaflet-control-zoom a { background: #fff; color: #37474f; border-color: #e4e9f2; }
+.leaflet-control-zoom a { background: #fff; color: #37474f; border-color: #e4e9f2; width:22px; height:22px; line-height:22px; font-size:14px; font-weight:700; }
+.leaflet-control-zoom { display:flex; flex-direction:row; gap:2px; border:none; }
 .leaflet-popup-content-wrapper { border-radius: 6px; font-size: 11px; }
 .leaflet-popup-content { margin: 6px 10px; }
 .info-row { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #eceff1; }
@@ -680,7 +681,7 @@ function initMap(){
   if(mapInstance) return;
   mapInstance=L.map('pondMap',{zoomControl:false,attributionControl:false}).setView([LOCS[0].lat,LOCS[0].lng],14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(mapInstance);
-  L.control.zoom({position:'topright'}).addTo(mapInstance);
+  L.control.zoom({position:'topleft'}).addTo(mapInstance);
   LOCS.forEach((l,i)=>{
     const m=L.marker([l.lat,l.lng],{icon:L.divIcon({html:`<div style="background:${i===0?'#0288d1':'#78909c'};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]})}).addTo(mapInstance);
     m.bindPopup(`<b>${l.name}</b><br>${l.lng}°E, ${l.lat}°N<br><span style="color:#0288d1;font-size:10px;">DO: ${DATA_LOC[i].do} mg/L</span>`);
